@@ -62,11 +62,35 @@ def post_login():
     login_user(user)
     return redirect(url_for('get_index'))
 
+
+@app.route('/register', methods=['GET'])
+def get_register():
+    return render_template('register.html')
+
+
+@app.route('/register', methods=['POST'])
+def post_register():
+    username = request.form['username']
+    password = request.form['password']
+
+    if not username or not password:
+        return render_template('register.html', error=True)
+
+    user = User.register(username, password)
+
+    if not user:
+        return render_template('register.html', error=True)
+
+    login_user(user)
+    return redirect(url_for('get_index'))
+
+
 @app.route('/logout')
 @login_required
 def get_logout():
     logout_user()
     return redirect(url_for('get_login'))
+
 
 if __name__ == '__main__':
     app.run()
