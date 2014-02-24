@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 class User():
     # REESCRIBIR
     # cambiar los atributos de la clase como os sea necesario para vuestra base de datos
