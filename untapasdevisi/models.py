@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError
 
 db = SQLAlchemy()
 
@@ -22,10 +23,13 @@ class User(db.Model):
 
     @staticmethod
     def register(username, password):
-        user = User(username, password)
-        db.session.add(user)
-        db.session.commit()
-        return user
+        try:
+            user = User(username, password)
+            db.session.add(user)
+            db.session.commit()
+            return user
+        except IntegrityError:
+            return
 
     @staticmethod
     def get(id):
