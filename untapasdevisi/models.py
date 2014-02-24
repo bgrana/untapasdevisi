@@ -1,31 +1,35 @@
 # -*- coding: utf-8 -*-
+from flask.ext.sqlalchemy import SQLAlchemy
 
-class User():
-    # REESCRIBIR
-    # cambiar los atributos de la clase como os sea necesario para vuestra base de datos
-    def __init__(self, username):
+db = SQLAlchemy()
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True)
+    # TODO: modificar esto usar bcrypt para guardar el hash y no el password en plaintext
+    password = db.Column(db.String(80))
+
+    def __init__(self, username, password):
         self.username = username
+        self.password = password
 
-    # REESCRIBIR
-    # este metodo recibe un nombre de usuario y contraseña y debe devolver el usuario asociado a ellos
-    # si la contraseña es incorrecta o hay algun error devolver null
     @staticmethod
     def authenticate(username, password):
-        return User(username)
+        user = User.query.filter_by(username=username).first()
+        if not user or user.password != password:
+            return
+        return user
 
-    # REESCRIBIR
-    # este metodo debe crear un nuevo usuario en la base de datos y devolverlo
-    # si hay algun error devolver null
     @staticmethod
     def register(username, password):
-        return User(username)
+        user = User(username, password)
+        db.session.add(user)
+        db.session.commit()
+        return user
 
-    # REESCRIBIR
-    # este metodo recive como argumento el atributo que useis en el metodo get_id que esta
-    # mas abajo y debe devolver el usuario asociado a esa id
     @staticmethod
     def get(id):
-        return User(id)
+        return User.query.get(id)
 
     def is_authenticated(self):
         return True
@@ -36,8 +40,5 @@ class User():
     def is_anonymous(self):
         return False
 
-    # REESCRIBIR
-    # este metodo debe retornar el atributo que va a userse para la cookie. Lo normal seria devolver
-    # la key del modelo, el id, o lo que sea equivalente en vuestras bases de datos
     def get_id(self):
-        return self.username
+        return self.id

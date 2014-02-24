@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import os
+
 from flask import Flask, request, render_template, redirect, url_for
 from flask.ext.login import LoginManager, login_user, current_user, login_required, logout_user
 
-from models import User
+from models import db, User
 
 # Setup
 ###############################################################################
@@ -12,9 +13,14 @@ from models import User
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.update({
-    "DEBUG": True,
-    "SECRET_KEY": os.getenv('UNTAPASDEVISI_SECRET_KEY', 'development_key')
+    'DEBUG': True,
+    'SECRET_KEY': os.getenv('UNTAPASDEVISI_SECRET_KEY', 'development_key'),
+    'SQLALCHEMY_DATABASE_URI': 'sqlite:////tmp/untapasdevisi_dev.db'
 })
+
+
+db.init_app(app)
+db.create_all(app=app)
 
 
 login_manager = LoginManager()
@@ -33,7 +39,6 @@ def unauthorized():
 
 # Routes
 ###############################################################################
-
 
 @app.route('/', methods=['GET'])
 @login_required
