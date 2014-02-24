@@ -3,5 +3,6 @@
 {% block body %}
 <div class="jumbotron">
   <h1>Hello, {{username}}!</h1>
+  <p><a href="{{ url_for('get_logout') }}" class="btn btn-primary btn-lg" role="button">Salir</a></p>
 </div>
 {% endblock %}
