@@ -3,7 +3,6 @@
 import os
 from flask import Flask, request, render_template, redirect, url_for
 from flask.ext.login import LoginManager, login_user, current_user, login_required, logout_user
-
 from models import User
 
 # Setup
@@ -15,7 +14,6 @@ app.config.update({
     "DEBUG": True,
     "SECRET_KEY": os.getenv('UNTAPASDEVISI_SECRET_KEY', 'development_key')
 })
-
 
 login_manager = LoginManager()
 login_manager.init_app(app)
