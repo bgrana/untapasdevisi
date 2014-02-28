@@ -14,10 +14,8 @@ app.config.update({
     "DEBUG": True,
     "SECRET_KEY": os.getenv('UNTAPASDEVISI_SECRET_KEY', 'development_key')
 })
-
 login_manager = LoginManager()
 login_manager.init_app(app)
-
 
 @login_manager.user_loader
 def load_user(userid):
@@ -54,9 +52,9 @@ def post_login():
 
     user = User.authenticate(username, password)
 
-    if not user:
+    if not user :
         return render_template('login.html', error=True)
-
+    
     login_user(user)
     return redirect(url_for('get_index'))
 
