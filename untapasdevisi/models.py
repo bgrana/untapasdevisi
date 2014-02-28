@@ -14,7 +14,7 @@ g = Graph()
 
 class User(Node):
     
-    element_type = "person"
+    element_type = "user"
 
     # unique, index (assume all index, and index=False)
 
