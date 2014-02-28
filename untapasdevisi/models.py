@@ -55,5 +55,5 @@ class User(Node):
     def get_id(self):
         return g.user.index.lookup(username=self.username).next().eid #No creo que funcione
 
-g.user = g.build_proxy(User)
+#g.user = g.build_proxy(User) #Son terminos equivalentes
 g.add_proxy("user", User)
