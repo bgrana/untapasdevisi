@@ -1,50 +1,40 @@
 # -*- coding: utf-8 -*-
-#from bulbs.neo4jserver import Graph 
+from bulbs.neo4jserver import Graph as Neo4jGraph
 from bulbs.model import Node
-from bulbs.neo4jserver import Graph
-from bulbs.property import String, Integer
+from bulbs.property import String
 
-g = Graph();
-g.add_proxy("user", User) #Esto no haría falta, de hecho casi toda la clase user sobra :(
+
+g = Neo4jGraph()
 
 class User(Node):
-    #id = Integer() La id está implicita, es un long que se obtiene con .id
-    username = String(nullable=False)
-    password = String(nullable=False)
-    
-    # REESCRIBIR
-    # cambiar los atributos de la clase como os sea necesario para vuestra base de datos
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
+    #element_type = "user"
+    # unique, index (assume all index, and index=False)
+    password =  String(nullable=False)
+    username = String(nullable=False)  
 
-    # REESCRIBIR
-    # este metodo recibe un nombre de usuario y contraseña y debe devolver el usuario asociado a ellos
-    # si la contraseña es incorrecta o hay algun error devolver null
+    def __init__(self, uname, upass):
+        self.username = uname
+        self.password = upass
+
     @staticmethod
     def authenticate(uname, upass):
-        ret_user = g.user.index.lookup(username=uname).next() #Busca el usuario por el parametro dado
-        if not ret_user or ret_user.password != upass:
+        user = g.vertices.index.lookup(username=uname).next()
+        if not user or user.password != upass:
             return
-        return ret_user
+        return user
 
-    # REESCRIBIR
-    # este metodo debe crear un nuevo usuario en la base de datos y devolverlo
-    # si hay algun error devolver null
     @staticmethod
     def register(uname, upass):
-        ret_user = g.user.index.lookup(username=uname).next() #Busca el usuario por el parametro dado
-        if ret_user: #El usuario existe
+        user = g.vertices.index.lookup(username=uname).next()
+        if not user:
+            user = g.vertices.create(username=uname,password=upass)
+            return user
+        else:
             return
-        ret_user = g.user.create(username=uname,password=upass)
-        return ret_user
-        
-    # REESCRIBIR
-    # este metodo recive como argumento el atributo que useis en el metodo get_id que esta
-    # mas abajo y debe devolver el usuario asociado a esa id
+
     @staticmethod
     def get(id):
-        return g.user.get(id) #Tal vez en vez del indice "user" haya que usar el indice "vertices" (que es global)
+        return g.vertices.get(id)
 
     def is_authenticated(self):
         return True
@@ -55,8 +45,8 @@ class User(Node):
     def is_anonymous(self):
         return False
 
-    # REESCRIBIR
-    # este metodo debe retornar el atributo que va a userse para la cookie. Lo normal seria devolver
-    # la key del modelo, el id, o lo que sea equivalente en vuestras bases de datos
     def get_id(self):
-        return self.id
+        return g.vertices.index.lookup(username=self.username).next().eid #No creo que funcione
+    
+
+    
