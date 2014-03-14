@@ -7,12 +7,17 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
+    validated = db.Column(db.Boolean, default=False)
     # TODO: modificar esto usar bcrypt para guardar el hash y no el password en plaintext
     password = db.Column(db.String(80))
 
     def __init__(self, username, password):
         self.username = username
         self.password = password
+
+    def validate(self):
+        self.validated = True
+        self.save()
 
     @staticmethod
     def authenticate(username, password):

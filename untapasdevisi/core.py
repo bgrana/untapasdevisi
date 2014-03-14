@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import os
+import utils
 
-from flask import Flask, request, render_template, redirect, url_for
+import redis
+
+from flask import Flask, request, render_template, redirect, url_for, abort
 from flask.ext.login import LoginManager, login_user, current_user, login_required, logout_user
 
 from models import db, User
@@ -15,9 +18,11 @@ app.config.from_object(__name__)
 app.config.update({
     'DEBUG': True,
     'SECRET_KEY': os.getenv('UNTAPASDEVISI_SECRET_KEY', 'development_key'),
-    'SQLALCHEMY_DATABASE_URI': 'sqlite:////tmp/untapasdevisi_dev.db'
+    'SQLALCHEMY_DATABASE_URI': 'sqlite:////tmp/untapasdevisi_dev.db',
+    'REDIS_URL': 'localhost'
 })
 
+redis = redis.from_url(app.config['REDIS_URL'])
 
 db.init_app(app)
 db.create_all(app=app)
@@ -86,6 +91,8 @@ def post_register():
     if not user:
         return render_template('register.html', error=True)
 
+    redis.set('validate:key:'+ utils.generate_key(), user.id)
+
     login_user(user)
     return redirect(url_for('get_index'))
 
@@ -96,6 +103,25 @@ def get_logout():
     logout_user()
     return redirect(url_for('get_login'))
 
+
+@app.route('/keys/<key>', methods=['GET'])
+def post_key(key):
+    userid = redis.get('validate:key:' + key)
+    if not userid:
+        abort(404)
+
+    user = User.get(userid)
+    user.validate()
+
+    return redirect(url_for('get_login'))
+
+
+# ERROR HANDLERS
+###############################################################################
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html'), 404
 
 if __name__ == '__main__':
     app.run()
