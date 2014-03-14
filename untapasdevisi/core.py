@@ -81,17 +81,20 @@ def get_register():
 @app.route('/register', methods=['POST'])
 def post_register():
     username = request.form['username']
+    email = request.form['email']
     password = request.form['password']
 
-    if not username or not password:
+    if not username or not password or not email:
         return render_template('register.html', error=True)
 
-    user = User.register(username, password)
+    user = User.register(username, password, email)
 
     if not user:
         return render_template('register.html', error=True)
 
-    redis.set('validate:key:'+ utils.generate_key(), user.id)
+    key = utils.generate_key()
+    redis.set('validate:key:'+ key, user.id)
+    utils.send_simple_message(email, key)
 
     login_user(user)
     return redirect(url_for('get_index'))
@@ -105,7 +108,7 @@ def get_logout():
 
 
 @app.route('/keys/<key>', methods=['GET'])
-def post_key(key):
+def get_key(key):
     userid = redis.get('validate:key:' + key)
     if not userid:
         abort(404)
