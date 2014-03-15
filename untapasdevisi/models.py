@@ -19,10 +19,10 @@ class User(db.Model):
 
 
     def validate(self):
-        self.validated = True
-        self.save()
+        User.query.filter_by(username = self.username).\
+    update({"validated":True}, synchronize_session=False)
 
-    @staticmethod
+
     def authenticate(username, password):
         user = User.query.filter_by(username=username).first()
         if not user or user.password != password:
