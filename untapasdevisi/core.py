@@ -94,7 +94,7 @@ def post_register():
 
     key = utils.generate_key()
     redis.set('validate:key:'+ key, user.id)
-    utils.send_simple_message(email, key)
+    utils.send_validation_email(email, key)
 
     login_user(user)
     return redirect(url_for('get_index'))
