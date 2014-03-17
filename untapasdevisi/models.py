@@ -40,8 +40,9 @@ class User(db.Model):
         return User.query.get(id)
 
     def validate(self):
-        User.query.filter_by(username = self.username).\
-        update({"validated":True}, synchronize_session=False)
+        self.validated = True
+        db.session.add(self)
+        db.session.commit()
 
     def has_password(self, password):
         return bcrypt.verify(password, self.password_hash)
