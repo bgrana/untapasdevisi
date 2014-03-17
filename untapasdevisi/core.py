@@ -18,11 +18,9 @@ app.config.from_object(__name__)
 app.config.update({
     'DEBUG': True,
     'SECRET_KEY': os.getenv('UNTAPASDEVISI_SECRET_KEY', 'development_key'),
-    'SQLALCHEMY_DATABASE_URI': 'sqlite:////tmp/untapasdevisi_dev.db',
-    'REDIS_URL': 'localhost'
+    'SQLALCHEMY_DATABASE_URI': 'sqlite:////tmp/untapasdevisi_dev.db'
 })
 
-redis = redis.from_url(app.config['REDIS_URL'])
 
 db.init_app(app)
 db.create_all(app=app)
@@ -92,9 +90,7 @@ def post_register():
     if not user:
         return render_template('register.html', error=True)
 
-    key = utils.generate_key()
-    redis.set('validate:key:'+ key, user.id)
-    utils.send_validation_email(user, key)
+    utils.send_validation_email(user)
 
     login_user(user)
     return redirect(url_for('get_index'))
@@ -107,15 +103,11 @@ def get_logout():
     return redirect(url_for('get_login'))
 
 
-@app.route('/keys/<key>', methods=['GET'])
-def get_key(key):
-    userid = redis.get('validate:key:' + key)
-    if not userid:
-        abort(404)
-
-    user = User.get(userid)
-    user.validate()
-
+@app.route('/users/<username>/validate', methods=['GET'])
+def get_user_validate(username):
+    key = request.args.get('key')
+    user = User.validate(username, key)
+    # TODO: Mostrar mensaje de exito/error
     return redirect(url_for('get_login'))
 
 

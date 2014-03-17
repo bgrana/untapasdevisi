@@ -2,7 +2,7 @@
 
 <p>Hola {{ user.username }},</p>
 
-<p>Hemos creado una cuenta a tu nombre. Pulsa en este <a href="http://{{ host }}/keys/{{ key }}">enlace</a> para validarla.</p>
+<p>Hemos creado una cuenta a tu nombre. Pulsa en este <a href="http://{{ host }}/users/{{user.username}}/validate?key={{ user.validation_key }}">enlace</a> para validarla.</p>
 
 <p>Un saludo,</p>
 <p>Jesús Sánchez, CEO de UntapasDevisi</p>

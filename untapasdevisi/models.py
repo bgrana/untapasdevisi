@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+import uuid
+
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from passlib.hash import bcrypt
@@ -13,16 +16,27 @@ class User(db.Model):
     email = db.Column(db.String(80))
     validated = db.Column(db.Boolean, default=False)
     password_hash = db.Column(db.String(80))
+    validation_key = db.Column(db.String(80))
 
     def __init__(self, username, password, email):
         self.username = username
         self.email = email
         self.password_hash = bcrypt.encrypt(password)
+        self.validation_key = uuid.uuid4().hex
 
     @staticmethod
     def authenticate(username, password):
         user = User.query.filter_by(username=username).first()
         if user or user.has_password(password):
+            return user
+
+    @staticmethod
+    def validate(username, key):
+        user = User.query.filter_by(username=username).first()
+        if user and not user.validated and user.has_validation_key(key):
+            user.validate = True
+            db.session.add(user)
+            db.session.commit()
             return user
 
     @staticmethod
@@ -39,13 +53,11 @@ class User(db.Model):
     def get(id):
         return User.query.get(id)
 
-    def validate(self):
-        self.validated = True
-        db.session.add(self)
-        db.session.commit()
-
     def has_password(self, password):
         return bcrypt.verify(password, self.password_hash)
+
+    def has_validation_key(self, key):
+        return self.validation_key == key
 
     def is_authenticated(self):
         return True
