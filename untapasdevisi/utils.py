@@ -1,6 +1,5 @@
 import uuid
 import requests
-from passlib.hash import bcrypt
 
 
 def generate_key():
@@ -15,11 +14,3 @@ def send_simple_message(mail, key):
               "to": [mail],
               "subject": "UnTapasDevIS Activacion",
               "html": '<p>Pulsa sobre el enlace para activar tu cuenta:<br><a href="http://127.0.0.1:5000/keys/' + key + '">http://127.0.0.1:5000/keys/' + key + '</a>'})
-
-
-def hash_pwd(password):
-	return bcrypt.encrypt(password)
-
-
-def check_pwd(password, hashed_pwd):
-	return bcrypt.verify(password, hashed_pwd)

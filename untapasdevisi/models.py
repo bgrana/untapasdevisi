@@ -1,40 +1,34 @@
 # -*- coding: utf-8 -*-
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
-import utils
+from passlib.hash import bcrypt
+
 
 db = SQLAlchemy()
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
     email = db.Column(db.String(80))
     validated = db.Column(db.Boolean, default=False)
-    # TODO: modificar esto usar bcrypt para guardar el hash y no el password en plaintext
-    password = db.Column(db.String(80))
+    password_hash = db.Column(db.String(80))
 
     def __init__(self, username, password, email):
         self.username = username
         self.email = email
-        self.password = password
-
-
-    def validate(self):
-        User.query.filter_by(username = self.username).\
-        update({"validated":True}, synchronize_session=False)
+        self.password_hash = bcrypt.encrypt(password)
 
     @staticmethod
     def authenticate(username, password):
         user = User.query.filter_by(username=username).first()
-        if not user or not utils.check_pwd(password, user.password):
-            return
-        return user
+        if user or user.has_password(password):
+            return user
 
     @staticmethod
     def register(username, password, email):
         try:
-            hashed_pwd = utils.hash_pwd(password)
-            user = User(username, hashed_pwd, email)
+            user = User(username, password, email)
             db.session.add(user)
             db.session.commit()
             return user
@@ -44,6 +38,13 @@ class User(db.Model):
     @staticmethod
     def get(id):
         return User.query.get(id)
+
+    def validate(self):
+        User.query.filter_by(username = self.username).\
+        update({"validated":True}, synchronize_session=False)
+
+    def has_password(self, password):
+        return bcrypt.verify(password, self.password_hash)
 
     def is_authenticated(self):
         return True
