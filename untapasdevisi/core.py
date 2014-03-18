@@ -167,7 +167,7 @@ def get_logout():
 
 
 @app.route('/validate', methods=['GET'])
-def get_validate(username):
+def get_validate():
     key = request.args.get('key')
 
     userid = redis.get('validate:key:' + key)
