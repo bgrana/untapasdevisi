@@ -5,7 +5,7 @@ import utils
 
 import redis
 
-from flask import Flask, request, render_template, redirect, url_for, abort
+from flask import Flask, request, render_template, redirect, url_for, abort, flash
 from flask.ext.login import LoginManager, login_user, current_user, login_required, logout_user
 
 from models import db, User
@@ -18,8 +18,12 @@ app.config.from_object(__name__)
 app.config.update({
     'DEBUG': True,
     'SECRET_KEY': os.getenv('UNTAPASDEVISI_SECRET_KEY', 'development_key'),
-    'SQLALCHEMY_DATABASE_URI': 'sqlite:////tmp/untapasdevisi_dev.db'
+    'SQLALCHEMY_DATABASE_URI': 'sqlite:////tmp/untapasdevisi_dev.db',
+    'REDIS_URL': 'localhost'
 })
+
+
+redis = redis.from_url(app.config['REDIS_URL'])
 
 
 db.init_app(app)
@@ -90,10 +94,66 @@ def post_register():
     if not user:
         return render_template('register.html', error=True)
 
-    utils.send_validation_email(user)
+    key = utils.generate_key()
+    redis.set('validate:key:'+ key, user.id)
+    # expirar en 24h
+    redis.expire('validate:key:'+ key, 60*60*24)
+
+    utils.send_validation_email(user, key)
 
     login_user(user)
     return redirect(url_for('get_index'))
+
+
+@app.route('/forgot_password', methods=['GET'])
+def get_forgot_password():
+    return render_template('forgot_password.html')
+
+
+@app.route('/forgot_password', methods=['POST'])
+def post_forgot_password():
+    username = request.form['username']
+    user = User.get_by_username(username)
+    if user:
+        key = utils.generate_key()
+        redis.set('reset:key:'+ key, user.id)
+        # expirar en 24h
+        redis.expire('reset:key:'+ key, 60*60*24)
+        # TODO: Arreglar caracteres unicode en templates
+        utils.sent_reset_password_email(user, key)
+        flash('Email de recuperacion de contrasena enviado correctamente.')
+        return redirect(url_for('get_login'))
+    else:
+        # TODO: mostrar error
+        return render_template('forgot_password.html')
+
+
+@app.route('/reset_password', methods=['GET'])
+def get_reset_password():
+    key = request.args.get('key')
+    userid = redis.get('reset:key:' + key)
+    if not userid:
+        abort(404)
+    return render_template('reset_password.html')
+
+@app.route('/reset_password', methods=['POST'])
+def post_reset_password():
+    key = request.args.get('key')
+    password = request.form['password']
+
+    if not password:
+        return render_template('reset_password.html')
+
+    userid = redis.get('reset:key:' + key)
+    if not userid:
+        abort(404)
+
+    user = User.get(userid)
+    user.update_password(password)
+    redis.delete('reset:key:' + key)
+
+    flash("Password actualizado correctamente")
+    return redirect(url_for('get_login'))
 
 
 @app.route('/logout')
@@ -103,11 +163,17 @@ def get_logout():
     return redirect(url_for('get_login'))
 
 
-@app.route('/users/<username>/validate', methods=['GET'])
+@app.route('/validate', methods=['GET'])
 def get_user_validate(username):
     key = request.args.get('key')
-    user = User.validate(username, key)
-    # TODO: Mostrar mensaje de exito/error
+
+    userid = redis.get('validate:key:' + key)
+    if not userid:
+        abort(404)
+
+    user = User.get(userid)
+    user.validate()
+    flash("Usuario validado correctamente.")
     return redirect(url_for('get_login'))
 
 

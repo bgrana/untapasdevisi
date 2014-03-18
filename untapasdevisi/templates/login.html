@@ -8,7 +8,7 @@
     <input type="username" class="form-control" id="username" name="username" placeholder="Nombre de usuario">
   </div>
   <div class="form-group {% if error %}has-error{% endif %}">
-    <label for="password">Contraseña</label>
+    <label for="password">Contraseña</label>  <a href="{{ url_for('get_forgot_password') }}">¿Olvidastes la contraseña?</a>
     <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña">
   </div>
   <button type="submit" class="btn btn-default">Entrar</button>
