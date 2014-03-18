@@ -51,7 +51,7 @@ def unauthorized():
 @login_required
 def get_index():
     if not current_user.validated:
-        flash("Su cuenta de email aun no ha sido validada.", "warning")
+        flash(u"Su cuenta de email aun no ha sido validada.", "warning")
     return render_template('index.html', username=current_user.username)
 
 
@@ -123,7 +123,7 @@ def post_forgot_password():
         redis.expire('reset:key:'+ key, 60*60*24)
         # TODO: Arreglar caracteres unicode en templates
         utils.sent_reset_password_email(user, key)
-        flash('Email de recuperacion de contrasena enviado correctamente.', 'success')
+        flash(u'Email de recuperacion de contraseña enviado correctamente.', 'success')
         return redirect(url_for('get_login'))
     else:
         # TODO: mostrar error
@@ -155,7 +155,7 @@ def post_reset_password():
     user.update_password(password)
     redis.delete('reset:key:' + key)
 
-    flash("Password actualizado correctamente.", 'success')
+    flash(u"Contraseña actualizada correctamente.", 'success')
     return redirect(url_for('get_login'))
 
 
@@ -177,7 +177,7 @@ def get_validate():
     user = User.get(userid)
     user.validate()
     redis.delete('validate:key:' + key)
-    flash("Usuario validado correctamente.", 'success')
+    flash(u"Usuario validado correctamente.", 'success')
     return redirect(url_for('get_login'))
 
 
