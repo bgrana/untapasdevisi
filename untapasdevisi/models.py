@@ -23,7 +23,7 @@ class User(db.Model):
     @staticmethod
     def authenticate(username, password):
         user = User.get_by_username(username)
-        if user or user.has_password(password):
+        if user and user.has_password(password):
             return user
 
     def validate(self):
