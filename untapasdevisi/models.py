@@ -27,7 +27,7 @@ class User(db.Model):
             return user
 
     def validate(self):
-        self.validate = True
+        self.validated = True
         db.session.add(self)
         db.session.commit()
 

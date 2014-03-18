@@ -176,6 +176,7 @@ def get_validate():
 
     user = User.get(userid)
     user.validate()
+    redis.delete('validate:key:' + key)
     flash("Usuario validado correctamente.", 'success')
     return redirect(url_for('get_login'))
 
