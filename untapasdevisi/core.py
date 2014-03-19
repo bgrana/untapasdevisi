@@ -52,7 +52,7 @@ def unauthorized():
 def get_index():
     if not current_user.validated:
         flash(u"Su cuenta de email aun no ha sido validada.", "warning")
-    return render_template('index.html', username=current_user.username)
+    return render_template('index.html', username=current_user.username, host="127.0.0.1:5000")
 
 
 @app.route('/login', methods=['GET'])
@@ -179,6 +179,23 @@ def get_validate():
     redis.delete('validate:key:' + key)
     flash(u"Usuario validado correctamente.", 'success')
     return redirect(url_for('get_login'))
+
+
+@app.route('/resend', methods=['GET'])
+@login_required
+def get_resend():
+    user = User.get_by_username(request.args.get('username'))
+    if not user.validated:
+        key = utils.generate_key()
+        redis.set('validate:key:'+ key, user.id)
+        # expirar en 24h
+        redis.expire('validate:key:'+ key, 60*60*24)
+
+        utils.send_validation_email(user, key)
+        flash(u"Email de confirmación reenviado.", 'success')
+    else:
+        flash(u"Ya has validado tu cuenta.", 'warning')
+    return redirect(url_for('get_index'))
 
 
 # ERROR HANDLERS
