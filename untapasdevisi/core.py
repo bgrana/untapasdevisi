@@ -66,11 +66,13 @@ def post_login():
     password = request.form['password']
 
     if not username or not password:
+        flash(u'Usuario y/o contraseña erróneos.', 'danger')
         return render_template('login.html', error=True)
 
     user = User.authenticate(username, password)
 
     if not user:
+        flash(u'Usuario y/o contraseña erróneos.', 'danger')
         return render_template('login.html', error=True)
 
     login_user(user)
@@ -89,11 +91,13 @@ def post_register():
     password = request.form['password']
 
     if not username or not password or not email:
+        flash(u'No puede dejar ningún campo sin rellenar.', 'danger')
         return render_template('register.html', error=True)
 
     user = User.register(username, password, email)
 
     if not user:
+        flash(u'El usuario ya existe.', 'danger')
         return render_template('register.html', error=True)
 
     key = utils.generate_key()
