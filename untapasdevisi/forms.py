@@ -20,6 +20,7 @@ class ProfileForm(Form):
         validators.Email(message="Email no valido.")
     ])
     location = TextField('location', validators=[
+        validators.Optional(),
         validators.Length(min=6, max=16, message=u"La ubicación debe tener entre 6 y 16 caracteres."),
     ])
     password = PasswordField('password', [

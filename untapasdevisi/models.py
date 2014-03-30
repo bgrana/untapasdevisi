@@ -55,14 +55,11 @@ class User(db.Model):
         return User.query.filter_by(username=username).first()
 
     def update(self, form):
-        if form.username.data:
-            self.username = form.username.data
-        if form.email.data:
-            self.email = form.email.data
+        self.username = form.username.data
+        self.email = form.email.data
         if form.password.data:
             self.password_hash = bcrypt.encrypt(form.password.data)
-        if form.location.data:
-            self.location = form.location.data
+        self.location = form.location.data
         db.session.add(self)
         db.session.commit()
 
