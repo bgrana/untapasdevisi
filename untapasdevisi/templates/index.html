@@ -2,8 +2,6 @@
 
 {% block body %}
 <div class="jumbotron">
-  <h1>Hello, {{username}}!</h1>
-  <a href="http://{{ host }}/resend?username={{ username }}" class="btn btn-primary btn-lg" role="button">Reenviar email de confirmacion</a>
-  <p><a href="{{ url_for('get_logout') }}" class="btn btn-primary btn-lg" role="button">Salir</a></p>
+  <h1>Hello, {{user.username}}!</h1>
 </div>
 {% endblock %}
