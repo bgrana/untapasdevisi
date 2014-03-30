@@ -16,7 +16,7 @@
 
         {% if user %}
         <ul class="nav navbar-nav">
-          <li><a href="#">Dashboard</a></li>
+          <li><a href="/">Dashboard</a></li>
         </ul>
 
         <form class="navbar-form navbar-left" role="search">
@@ -37,6 +37,11 @@
           </li>
         </ul>
 
+        {% else %}
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="{{ url_for('get_login') }}">Entrar</a></li>
+          <li><a href="{{ url_for('get_register') }}">Registrarse</a></li>
+        </ul>
         {% endif %}
       </div>
     </nav>

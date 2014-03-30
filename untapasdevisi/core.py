@@ -77,12 +77,12 @@ def post_login():
     return redirect(url_for('get_index'))
 
 
-@app.route('/registrar', methods=['GET'])
+@app.route('/registrarse', methods=['GET'])
 def get_register():
     return render_template('register.html')
 
 
-@app.route('/registrar', methods=['POST'])
+@app.route('/registrarse', methods=['POST'])
 def post_register():
     username = request.form['username']
     email = request.form['email']
