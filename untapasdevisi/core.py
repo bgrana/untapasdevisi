@@ -55,16 +55,16 @@ def get_index():
     return render_template('index.html', user=current_user, host="127.0.0.1:5000")
 
 
-@app.route('/usuario/perfil', methods=['GET'])
+@app.route('/configuracion', methods=['GET'])
 @login_required
-def get_private_profile():
+def get_settings():
     form = ProfileForm(username=current_user.username, email=current_user.email)
     return render_template('private_profile.html', user=current_user, form=form)
 
 
-@app.route('/usuario/perfil', methods=['POST'])
+@app.route('/configuracion', methods=['POST'])
 @login_required
-def post_private_profile():
+def post_settings():
     form = ProfileForm(request.form)
     if form.validate():
         current_user.update(form)
@@ -73,7 +73,7 @@ def post_private_profile():
 
 @app.route('/usuarios/<username>', methods=['GET'])
 @login_required
-def get_public_profile(username):
+def get_profile(username):
     visited_user = User.get_by_username(username)
     if not visited_user:
         abort(404)
