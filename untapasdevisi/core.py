@@ -5,6 +5,8 @@ import utils
 
 import redis
 
+from babel.dates import format_date
+
 from flask import Flask, request, render_template, redirect, url_for, abort, flash
 from flask.ext.login import LoginManager, login_user, current_user, login_required, logout_user
 
@@ -44,6 +46,12 @@ def load_user(userid):
 def unauthorized():
     return redirect(url_for('get_login'))
 
+# Filers
+###############################################################################
+
+@app.template_filter('date')
+def date_filter(date):
+    return format_date(date, format='long', locale='es')
 
 # Routes
 ###############################################################################
@@ -58,7 +66,7 @@ def get_index():
 @app.route('/configuracion', methods=['GET'])
 @login_required
 def get_settings():
-    form = ProfileForm(username=current_user.username, email=current_user.email)
+    form = ProfileForm(username=current_user.username, email=current_user.email, location=current_user.location)
     return render_template('settings.html', user=current_user, form=form)
 
 

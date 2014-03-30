@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from passlib.hash import bcrypt
@@ -11,7 +12,11 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
+    firstname = db.Column(db.String(80))
+    lastname = db.Column(db.String(80))
+    location = db.Column(db.String(80))
     email = db.Column(db.String(80))
+    created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     validated = db.Column(db.Boolean, default=False)
     password_hash = db.Column(db.String(80))
 
@@ -56,6 +61,8 @@ class User(db.Model):
             self.email = form.email.data
         if form.password.data:
             self.password_hash = bcrypt.encrypt(form.password.data)
+        if form.location.data:
+            self.location = form.location.data
         db.session.add(self)
         db.session.commit()
 

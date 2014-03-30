@@ -19,6 +19,9 @@ class ProfileForm(Form):
         validators.Required(message="Debes introducir un email."),
         validators.Email(message="Email no valido.")
     ])
+    location = TextField('location', validators=[
+        validators.Length(min=6, max=16, message=u"La ubicación debe tener entre 6 y 16 caracteres."),
+    ])
     password = PasswordField('password', [
         validators.Optional(),
         validators.Length(min=6, max=64, message=u"La contraseña debe tener entre 6 y 64 caracteres."),

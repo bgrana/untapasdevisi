@@ -19,6 +19,13 @@
         <span class="glyphicon glyphicon-remove form-control-feedback"></span>
         {% endif %}
       </div>
+      <div class="form-group {% if form.location.errors %}has-error has-feedback{% endif %}">
+        <label for="location">Ubicación</label>
+        <input type="text" class="form-control" id="location" name="location" placeholder="Ubicación" {% if form.location.data %}value="{{ form.location.data }}"{% endif %}>
+        {% if form.location.errors %}
+        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+        {% endif %}
+      </div>
       <div class="form-group {% if form.password.errors %}has-error has-feedback{% endif %}">
         <label for="password">Nueva contraseña</label>
         <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña">

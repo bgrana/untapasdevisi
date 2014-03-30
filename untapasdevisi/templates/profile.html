@@ -1,18 +1,26 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<h1>{{ visited_user.username }}</h1>
+<nav class="navbar navbar-default" role="navigation">
+  <div class="navbar-header">
+    <a class="navbar-brand" href="#">{{ visited_user.username }}</a>
+  </div>
+  {% if user != visited_user %}
+  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <a class="btn btn-default navbar-btn navbar-right" role="button" href="#">Añadir a mis amigos</a>
+  </div>
+  {% endif %}
+</nav>
 
 <div class="row">
   <div class="col-md-3">
     <div class="panel panel-default">
       <div class="panel-heading">Información</div>
       <ul class="list-group">
-        <li class="list-group-item">Cras justo odio</li>
-        <li class="list-group-item">Dapibus ac facilisis in</li>
-        <li class="list-group-item">Morbi leo risus</li>
-        <li class="list-group-item">Porta ac consectetur ac</li>
-        <li class="list-group-item">Vestibulum at eros</li>
+        <li class="list-group-item"><span class="glyphicon glyphicon-time"></span> {{ visited_user.created | date }}</li>
+        {% if visited_user.location %}
+        <li class="list-group-item"><span class="glyphicon glyphicon-map-marker"></span> {{ visited_user.location }}</li>
+        {% endif %}
       </ul>
     </div>
   </div>
