@@ -27,8 +27,9 @@
         </div>
 
         <ul class="nav navbar-nav navbar-right">
+          <li><a href="{{ url_for('get_friend_requests') }}"><i class="glyphicon glyphicon-envelope"></i> </a></li>
           <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }} <b class="caret"></b></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-user"></i> <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li><a href="{{ url_for('get_profile', username=user.username) }}">Perfil</a></li>
               <li><a href="{{ url_for('get_settings') }}">Configuración</a></li>

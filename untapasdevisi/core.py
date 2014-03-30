@@ -59,7 +59,7 @@ def get_index():
 @login_required
 def get_settings():
     form = ProfileForm(username=current_user.username, email=current_user.email)
-    return render_template('private_profile.html', user=current_user, form=form)
+    return render_template('settings.html', user=current_user, form=form)
 
 
 @app.route('/configuracion', methods=['POST'])
@@ -69,7 +69,13 @@ def post_settings():
     if form.validate():
         current_user.update(form)
         flash(u'Perfil actualizado correctamente', 'success')
-    return render_template('private_profile.html', user=current_user, form=form)
+    return render_template('settings.html', user=current_user, form=form)
+
+
+@app.route('/amigos/solicitudes', methods=['GET'])
+@login_required
+def get_friend_requests():
+    return render_template('friend_requests.html', user=current_user)
 
 @app.route('/usuarios/<username>', methods=['GET'])
 @login_required
