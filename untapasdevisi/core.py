@@ -55,12 +55,12 @@ def get_index():
     return render_template('index.html', username=current_user.username, host="127.0.0.1:5000")
 
 
-@app.route('/login', methods=['GET'])
+@app.route('/entrar', methods=['GET'])
 def get_login():
     return render_template('login.html')
 
 
-@app.route('/login', methods=['POST'])
+@app.route('/entrar', methods=['POST'])
 def post_login():
     username = request.form['username']
     password = request.form['password']
@@ -79,12 +79,12 @@ def post_login():
     return redirect(url_for('get_index'))
 
 
-@app.route('/register', methods=['GET'])
+@app.route('/registrar', methods=['GET'])
 def get_register():
     return render_template('register.html')
 
 
-@app.route('/register', methods=['POST'])
+@app.route('/registrar', methods=['POST'])
 def post_register():
     username = request.form['username']
     email = request.form['email']
@@ -111,12 +111,12 @@ def post_register():
     return redirect(url_for('get_index'))
 
 
-@app.route('/forgot_password', methods=['GET'])
+@app.route('/recuperar-clave', methods=['GET'])
 def get_forgot_password():
     return render_template('forgot_password.html')
 
 
-@app.route('/forgot_password', methods=['POST'])
+@app.route('/recuperar-clave', methods=['POST'])
 def post_forgot_password():
     username = request.form['username']
     user = User.get_by_username(username)
@@ -134,7 +134,7 @@ def post_forgot_password():
         return render_template('forgot_password.html')
 
 
-@app.route('/reset_password', methods=['GET'])
+@app.route('/resetear-clave', methods=['GET'])
 def get_reset_password():
     key = request.args.get('key')
     userid = redis.get('reset:key:' + key)
@@ -143,7 +143,7 @@ def get_reset_password():
     return render_template('reset_password.html')
 
 
-@app.route('/reset_password', methods=['POST'])
+@app.route('/resetear-clave', methods=['POST'])
 def post_reset_password():
     key = request.args.get('key')
     password = request.form['password']
@@ -163,14 +163,14 @@ def post_reset_password():
     return redirect(url_for('get_login'))
 
 
-@app.route('/logout')
+@app.route('/salir')
 @login_required
 def get_logout():
     logout_user()
     return redirect(url_for('get_login'))
 
 
-@app.route('/validate', methods=['GET'])
+@app.route('/validar', methods=['GET'])
 def get_validate():
     key = request.args.get('key')
 
@@ -185,7 +185,7 @@ def get_validate():
     return redirect(url_for('get_login'))
 
 
-@app.route('/resend', methods=['GET'])
+@app.route('/reenviar-clave', methods=['GET'])
 @login_required
 def get_resend():
     user = User.get_by_username(request.args.get('username'))
@@ -200,6 +200,10 @@ def get_resend():
     else:
         flash(u"Ya has validado tu cuenta.", 'warning')
     return redirect(url_for('get_index'))
+
+@app.route('/usuario/perfil', methods=['GET'])
+def get_private_profile():
+    return render_template('private_profile.html')
 
 # ERROR HANDLERS
 ###############################################################################
