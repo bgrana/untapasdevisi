@@ -83,7 +83,7 @@ def get_profile(username):
     visited_user = User.get_by_username(username)
     if not visited_user:
         abort(404)
-    return render_template('public_profile.html', user=current_user, visited_user=visited_user)
+    return render_template('profile.html', user=current_user, visited_user=visited_user)
 
 
 @app.route('/entrar', methods=['GET'])
