@@ -201,7 +201,6 @@ def get_resend():
         flash(u"Ya has validado tu cuenta.", 'warning')
     return redirect(url_for('get_index'))
 
-
 # ERROR HANDLERS
 ###############################################################################
 
