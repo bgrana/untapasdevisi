@@ -71,6 +71,14 @@ def post_private_profile():
         flash(u'Perfil actualizado correctamente', 'success')
     return render_template('private_profile.html', user=current_user, form=form)
 
+@app.route('/usuarios/<username>', methods=['GET'])
+@login_required
+def get_public_profile(username):
+    visited_user = User.get_by_username(username)
+    if not visited_user:
+        abort(404)
+    return render_template('public_profile.html', user=current_user, visited_user=visited_user)
+
 
 @app.route('/entrar', methods=['GET'])
 def get_login():
