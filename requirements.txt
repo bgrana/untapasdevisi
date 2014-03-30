@@ -5,6 +5,7 @@ Jinja2==2.7.2
 MarkupSafe==0.18
 PyYAML==3.10
 SQLAlchemy==0.9.3
+WTForms==1.0.5
 Werkzeug==0.9.4
 argparse==1.2.1
 ## FIXME: could not find svn URL in dependency_links for this package:

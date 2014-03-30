@@ -49,8 +49,13 @@ class User(db.Model):
     def get_by_username(username):
         return User.query.filter_by(username=username).first()
 
-    def update_password(self, password):
-        self.password_hash = bcrypt.encrypt(password)
+    def update(self, form):
+        if form.username.data:
+            self.username = form.username.data
+        if form.email.data:
+            self.email = form.email.data
+        if form.password.data:
+            self.password_hash = bcrypt.encrypt(form.password.data)
         db.session.add(self)
         db.session.commit()
 

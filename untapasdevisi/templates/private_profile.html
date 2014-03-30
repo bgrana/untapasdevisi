@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<h1>Perfil</h1>
+
+<form role="form" method="POST">
+
+  <div class="form-group {% if form.username.errors %}has-error has-feedback{% endif %}">
+    <label for="username">Nombre de usuario</label>
+    <input type="text" class="form-control" id="username" name="username" placeholder="Nombre de usuario" value="{{ form.username.data }}">
+    {% if form.username.errors %}
+    <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+    {% endif %}
+  </div>
+  <div class="form-group {% if form.email.errors %}has-error has-feedback{% endif %}">
+    <label for="email">Email</label>
+    <input type="text" class="form-control" id="email" name="email" placeholder="Email" value="{{ form.email.data }}">
+    {% if form.email.errors %}
+    <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+    {% endif %}
+  </div>
+  <div class="form-group {% if form.password.errors %}has-error has-feedback{% endif %}">
+    <label for="password">Nueva contraseña</label>
+    <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña">
+    {% if form.password.errors %}
+    <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+    {% endif %}
+  </div>
+  <div class="form-group {% if form.password.errors %}has-error has-feedback{% endif %}">
+    <label for="confirm">Confirma la nueva contraseña</label>
+    <input type="password" class="form-control" id="confirm" name="confirm" placeholder="Confirma la contraseña">
+    {% if form.password.errors %}
+    <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+    {% endif %}
+  </div>
+
+  {% if form.errors %}
+  <div class="alert alert-danger alert-dismissable">
+    Errores:
+    {% for error, messages in form.errors.iteritems() %}
+      {% for message in messages %}
+        {{ message }}
+      {% endfor %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <button type="submit" class="btn btn-default">Actualizar</button>
+
+</form>
+
+{% endblock %}

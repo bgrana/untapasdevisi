@@ -9,6 +9,7 @@ from flask import Flask, request, render_template, redirect, url_for, abort, fla
 from flask.ext.login import LoginManager, login_user, current_user, login_required, logout_user
 
 from models import db, User
+from forms import ProfileForm
 
 # Setup
 ###############################################################################
@@ -47,10 +48,28 @@ def unauthorized():
 # Routes
 ###############################################################################
 
+
 @app.route('/', methods=['GET'])
 @login_required
 def get_index():
     return render_template('index.html', user=current_user, host="127.0.0.1:5000")
+
+
+@app.route('/usuario/perfil', methods=['GET'])
+@login_required
+def get_private_profile():
+    form = ProfileForm(username=current_user.username, email=current_user.email)
+    return render_template('private_profile.html', user=current_user, form=form)
+
+
+@app.route('/usuario/perfil', methods=['POST'])
+@login_required
+def post_private_profile():
+    form = ProfileForm(request.form)
+    if form.validate():
+        current_user.update(form)
+        flash(u'Perfil actualizado correctamente', 'success')
+    return render_template('private_profile.html', user=current_user, form=form)
 
 
 @app.route('/entrar', methods=['GET'])
@@ -198,10 +217,6 @@ def get_resend():
         flash(u"Su cuenta ya se encuentra validada.", 'danger')
     return redirect(url_for('get_index'))
 
-
-@app.route('/usuario/perfil', methods=['GET'])
-def get_private_profile():
-    return render_template('private_profile.html')
 
 # ERROR HANDLERS
 ###############################################################################
