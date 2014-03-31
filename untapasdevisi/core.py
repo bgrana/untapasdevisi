@@ -10,8 +10,8 @@ from babel.dates import format_date
 from flask import Flask, request, render_template, redirect, url_for, abort, flash
 from flask.ext.login import LoginManager, login_user, current_user, login_required, logout_user
 
-from models import db, User
-from forms import ProfileForm
+from models import db, User, Local
+from forms import ProfileForm, RegisterForm, LoginForm
 
 # Setup
 ###############################################################################
@@ -94,9 +94,28 @@ def get_profile(username):
     return render_template('profile.html', user=current_user, visited_user=visited_user)
 
 
+@app.route('/locales', methods=['GET'])
+def get_locales():
+    return render_template('locales.html',user=current_user)
+
+
+@app.route('/locales/',methods=['POST'])
+def post_locales():
+    localname = request.form['localname']
+    address = request.form['address']
+
+    if not form.validate():
+        return render_template('locales.html', user=current_user, error=True)
+
+    local = Local.create(localname,address)
+    return render_template('perfil_local.html', user=current_user)
+
+
+
 @app.route('/entrar', methods=['GET'])
 def get_login():
-    return render_template('login.html')
+    form = LoginForm(username='',password='')
+    return render_template('login.html', form=form)
 
 
 @app.route('/entrar', methods=['POST'])
@@ -104,15 +123,11 @@ def post_login():
     username = request.form['username']
     password = request.form['password']
 
-    if not username or not password:
-        flash(u'Usuario y/o contraseña erróneos.', 'danger')
-        return render_template('login.html', error=True)
+    form = LoginForm(request.form)
+    user = User.get_by_username(username)
 
-    user = User.authenticate(username, password)
-
-    if not user:
-        flash(u'Usuario y/o contraseña erróneos.', 'danger')
-        return render_template('login.html', error=True)
+    if not form.validate() or not user:
+        return render_template('login.html', error=True, form=form)
 
     login_user(user)
     return redirect(url_for('get_index'))
@@ -120,7 +135,8 @@ def post_login():
 
 @app.route('/registrarse', methods=['GET'])
 def get_register():
-    return render_template('register.html')
+    form = RegisterForm(username='', password='', email='',confirm='')
+    return render_template('register.html',form=form)
 
 
 @app.route('/registrarse', methods=['POST'])
@@ -129,15 +145,12 @@ def post_register():
     email = request.form['email']
     password = request.form['password']
 
-    if not username or not password or not email:
-        flash(u'No puede dejar ningún campo sin rellenar.', 'danger')
-        return render_template('register.html', error=True)
+    form = RegisterForm(request.form)
+
+    if not form.validate():
+        return render_template('register.html', error=True, form=form)
 
     user = User.register(username, password, email)
-
-    if not user:
-        flash(u'El usuario ya existe.', 'danger')
-        return render_template('register.html', error=True)
 
     key = utils.generate_key()
     redis.set('validate:key:'+ key, user.id)

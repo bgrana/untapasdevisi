@@ -63,17 +63,33 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
 
+
     def has_password(self, password):
         return bcrypt.verify(password, self.password_hash)
+
 
     def is_authenticated(self):
         return True
 
+
     def is_active(self):
         return True
+
 
     def is_anonymous(self):
         return False
 
+
     def get_id(self):
         return self.id
+
+
+class Local(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    localname = db.Column(db.String(80), unique=True)
+    location = db.Column(db.String(80))
+
+
+    def __init__(self, localname, location):
+        self.localname = localname
+        self.location = location
