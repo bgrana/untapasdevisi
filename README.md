@@ -1,5 +1,5 @@
 # Readme
-## Requrimientos software
+## Requerimientos software
 
 Redis
 ```bash
@@ -9,4 +9,14 @@ cd redis-stable
 make
 ```
 sqlite
+```bash
+sudo apt-get install sqlite
+```
 python-dev
+```bash
+sudo apt-get install python-dev
+```
+Dependencias
+```bash
+sudo pip install -r /ruta_al_proyecto/requeriments.txt
+```
