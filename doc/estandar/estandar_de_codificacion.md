@@ -47,6 +47,7 @@ Usar un dos saltos de linea entre declaracioes en un modulo y un salto de linea 
 
 ```python
 CONSTANT_NAME = 33
+
 def function_name(argument_name):
   variable_name = 1
 
