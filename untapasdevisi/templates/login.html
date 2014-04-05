@@ -29,6 +29,10 @@
           {% endfor %}
         {% endfor %}
       </div>
+      {% elif error %}
+      <div class="alert alert-danger alert-dismissable">
+        Errores: Nombre de usuario y/o contraseña incorrecto.
+      </div>
       {% endif %}
     </div>
     <div class="panel-footer">

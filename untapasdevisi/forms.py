@@ -6,7 +6,7 @@ from models import User
 
 
 def unique_username(form, field):
-    user = User.get_by_username(field.data)
+    user = User.objects(username=field.data).first()
     if user and user != current_user:
         raise validators.ValidationError('El nombre de usuario ya existe.')
 
@@ -59,18 +59,3 @@ class LoginForm(Form):
     password = PasswordField('password', [
         validators.Required(message=u'Debes introducir una contraseña.')
     ])
-
-
-    def validate(self):
-        # Regular validate
-        rv = Form.validate(self)
-        if not rv:
-            return False
-
-        user = User.authenticate(self.username.data,self.password.data)
-        if not user:
-            self.username.errors.append(u'Nombre de usuario y/o contraseña inválidos.')
-            self.password.errors.append(u'')
-            return False
-
-        return True

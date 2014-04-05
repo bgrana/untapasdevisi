@@ -10,7 +10,7 @@ from babel.dates import format_date
 from flask import Flask, request, render_template, redirect, url_for, abort, flash
 from flask.ext.login import LoginManager, login_user, current_user, login_required, logout_user
 
-from models import db, User, Local
+from models import User, Local, connect_db
 from forms import ProfileForm, RegisterForm, LoginForm
 
 # Setup
@@ -28,10 +28,7 @@ app.config.update({
 
 redis = redis.from_url(app.config['REDIS_URL'])
 
-
-db.init_app(app)
-db.create_all(app=app)
-
+connect_db()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -39,7 +36,7 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(userid):
-    return User.get(userid)
+    return User.objects(id=userid).first()
 
 
 @login_manager.unauthorized_handler
@@ -85,10 +82,11 @@ def post_settings():
 def get_friend_requests():
     return render_template('friend_requests.html', user=current_user)
 
+
 @app.route('/usuarios/<username>', methods=['GET'])
 @login_required
 def get_profile(username):
-    visited_user = User.get_by_username(username)
+    visited_user = User.objects(username=username).first()
     if not visited_user:
         abort(404)
     return render_template('profile.html', user=current_user, visited_user=visited_user)
@@ -107,7 +105,8 @@ def post_locales():
     if not form.validate():
         return render_template('locales.html', user=current_user, error=True)
 
-    local = Local.create(localname,address)
+    local = Local(localname, address)
+    local.save()
     return render_template('perfil_local.html', user=current_user)
 
 
@@ -120,16 +119,17 @@ def get_login():
 
 @app.route('/entrar', methods=['POST'])
 def post_login():
-    username = request.form['username']
-    password = request.form['password']
-
     form = LoginForm(request.form)
-    user = User.get_by_username(username)
 
-    if not form.validate() or not user:
+    if not form.validate():
+        return render_template('login.html', form=form)
+
+    user = User.authenticate(form.username.data, form.password.data)
+    if not user:
         return render_template('login.html', error=True, form=form)
 
     login_user(user)
+    print user
     return redirect(url_for('get_index'))
 
 
@@ -141,21 +141,17 @@ def get_register():
 
 @app.route('/registrarse', methods=['POST'])
 def post_register():
-    username = request.form['username']
-    email = request.form['email']
-    password = request.form['password']
-
     form = RegisterForm(request.form)
 
     if not form.validate():
         return render_template('register.html', error=True, form=form)
 
-    user = User.register(username, password, email)
+    user = User.register(form.username.data, form.password.data, form.email.data)
 
     key = utils.generate_key()
-    redis.set('validate:key:'+ key, user.id)
+    redis.set('activation:key:'+ key, user.id)
     # expirar en 24h
-    redis.expire('validate:key:'+ key, 60*60*24)
+    redis.expire('activation:key:'+ key, 60*60*24)
 
     utils.send_validation_email(user, key)
 
@@ -171,18 +167,16 @@ def get_forgot_password():
 @app.route('/recuperar-clave', methods=['POST'])
 def post_forgot_password():
     username = request.form['username']
-    user = User.get_by_username(username)
+    user = User.object(username=username).first()
     if user:
         key = utils.generate_key()
         redis.set('reset:key:'+ key, user.id)
         # expirar en 24h
         redis.expire('reset:key:'+ key, 60*60*24)
-        # TODO: Arreglar caracteres unicode en templates
         utils.sent_reset_password_email(user, key)
         flash(u'Email de recuperacion de contraseña enviado correctamente.', 'success')
         return redirect(url_for('get_login'))
     else:
-        # TODO: mostrar error
         return render_template('forgot_password.html')
 
 
@@ -203,12 +197,13 @@ def post_reset_password():
     if not password:
         return render_template('reset_password.html')
 
-    userid = redis.get('reset:key:' + key)
-    if not userid:
+    username = redis.get('reset:key:' + key)
+    if not username:
         abort(404)
 
-    user = User.get(userid)
+    user = User.object(username=username)
     user.update_password(password)
+    user.save()
     redis.delete('reset:key:' + key)
 
     flash(u"Contraseña actualizada correctamente.", 'success')
@@ -222,29 +217,30 @@ def get_logout():
     return redirect(url_for('get_login'))
 
 
-@app.route('/validar', methods=['GET'])
-def get_validate():
+@app.route('/activar', methods=['GET'])
+def get_activate():
     key = request.args.get('key')
 
-    userid = redis.get('validate:key:' + key)
+    userid = redis.get('activation:key:' + key)
     if not userid:
         abort(404)
 
-    user = User.get(userid)
-    user.validate()
-    redis.delete('validate:key:' + key)
+    user = User.objects(id=userid).first()
+    user.activate()
+    login_user(user)
+    redis.delete('activation:key:' + key)
     flash(u"Usuario validado correctamente.", 'success')
-    return redirect(url_for('get_login'))
+    return redirect(url_for('get_index'))
 
 
 @app.route('/reenviar-confirmacion', methods=['GET'])
 @login_required
 def get_resend():
-    if not current_user.validated:
+    if not current_user.activated:
         key = utils.generate_key()
-        redis.set('validate:key:'+ key, current_user.id)
+        redis.set('activation:key:'+ key, current_user.id)
         # expirar en 24h
-        redis.expire('validate:key:'+ key, 60*60*24)
+        redis.expire('activation:key:'+ key, 60*60*24)
 
         utils.send_validation_email(current_user, key)
         flash(u"Email de confirmación reenviado.", 'success')

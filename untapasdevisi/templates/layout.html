@@ -57,9 +57,9 @@
       </div>
       {% endfor %}
 
-      {% if user and not user.validated %}
+      {% if user and not user.activated %}
         <div class="alert alert-warning">
-          <p>Su cuenta de email aun no ha sido validada. <a href="http://{{ host }}{{ url_for('get_resend') }}">¿Reenviar email?</a></p>
+          <p>Su cuenta de email aun no ha sido validada. <a href="{{ url_for('get_resend') }}">¿Reenviar email?</a></p>
         </div>
       {% endif %}
 

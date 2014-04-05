@@ -1,58 +1,38 @@
 # -*- coding: utf-8 -*-
 
-import datetime
-from flask.ext.sqlalchemy import SQLAlchemy
-from sqlalchemy.exc import IntegrityError
+import mongoengine as mongo
 from passlib.hash import bcrypt
 
 
-db = SQLAlchemy()
+def connect_db():
+    mongo.connect('untapasdevisi')
 
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True)
-    firstname = db.Column(db.String(80))
-    lastname = db.Column(db.String(80))
-    location = db.Column(db.String(80))
-    email = db.Column(db.String(80))
-    created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    validated = db.Column(db.Boolean, default=False)
-    password_hash = db.Column(db.String(80))
-
-    def __init__(self, username, password, email):
-        self.username = username
-        self.email = email
-        self.password_hash = bcrypt.encrypt(password)
+class User(mongo.Document):
+    username = mongo.StringField(required=True, unique=True)
+    firstname = mongo.StringField()
+    lastname = mongo.StringField()
+    location = mongo.StringField()
+    email = mongo.StringField()
+    created = mongo.DateTimeField()
+    activated = mongo.BooleanField()
+    password_hash = mongo.StringField()
 
     @staticmethod
     def authenticate(username, password):
-        user = User.get_by_username(username)
+        user = User.objects(username=username).first()
         if user and user.has_password(password):
             return user
 
-    def validate(self):
-        self.validated = True
-        db.session.add(self)
-        db.session.commit()
+    def activate(self):
+        self.activated = True
+        self.save()
 
     @staticmethod
     def register(username, password, email):
-        try:
-            user = User(username, password, email)
-            db.session.add(user)
-            db.session.commit()
-            return user
-        except IntegrityError:
-            return
-
-    @staticmethod
-    def get(id):
-        return User.query.get(id)
-
-    @staticmethod
-    def get_by_username(username):
-        return User.query.filter_by(username=username).first()
+        user = User(username=username, email=email)
+        user.password_hash = bcrypt.encrypt(password)
+        user.save()
+        return user
 
     def update(self, form):
         self.username = form.username.data
@@ -60,36 +40,27 @@ class User(db.Model):
         if form.password.data:
             self.password_hash = bcrypt.encrypt(form.password.data)
         self.location = form.location.data
-        db.session.add(self)
-        db.session.commit()
-
+        self.save()
 
     def has_password(self, password):
         return bcrypt.verify(password, self.password_hash)
 
+    # methods used by flask-login
+
+    def get_id(self):
+        return str(self.id)
 
     def is_authenticated(self):
         return True
 
-
     def is_active(self):
         return True
-
 
     def is_anonymous(self):
         return False
 
 
-    def get_id(self):
-        return self.id
 
-
-class Local(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    localname = db.Column(db.String(80), unique=True)
-    location = db.Column(db.String(80))
-
-
-    def __init__(self, localname, location):
-        self.localname = localname
-        self.location = location
+class Local(mongo.Document):
+    localname = mongo.StringField(required=True, unique=True)
+    location = mongo.StringField()
