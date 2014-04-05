@@ -77,7 +77,7 @@ def post_settings():
     return render_template('settings.html', user=current_user, form=form)
 
 
-@app.route('/amigos/solicitudes', methods=['GET'])
+@app.route('/solicitudes', methods=['GET'])
 @login_required
 def get_friend_requests():
     return render_template('friend_requests.html', user=current_user)
@@ -90,6 +90,26 @@ def get_profile(username):
     if not visited_user:
         abort(404)
     return render_template('profile.html', user=current_user, visited_user=visited_user)
+
+
+@app.route('/usuarios/<username>/solicitud', methods=['POST'])
+@login_required
+def post_friend_request(username):
+    visited_user = User.objects(username=username).first()
+    if not visited_user or visited_user == current_user:
+        abort(404)
+    visited_user.add_friend(current_user)
+    return redirect(url_for('get_profile', username=visited_user.username))
+
+
+@app.route('/usuario/amigos/<username>', methods=['POST'])
+@login_required
+def post_remove_friend(username):
+    user = User.objects(username=username).first()
+    if not user or not current_user.is_friend(user):
+        abort(404)
+    current_user.remove_friend(user)
+    return redirect(url_for('get_profile', username=user.username))
 
 
 @app.route('/locales', methods=['GET'])

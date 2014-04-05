@@ -16,6 +16,7 @@ class User(mongo.Document):
     created = mongo.DateTimeField()
     activated = mongo.BooleanField()
     password_hash = mongo.StringField()
+    friends = mongo.ListField(mongo.ReferenceField('User', dbref=True))
 
     @staticmethod
     def authenticate(username, password):
@@ -44,6 +45,21 @@ class User(mongo.Document):
 
     def has_password(self, password):
         return bcrypt.verify(password, self.password_hash)
+
+    def add_friend(self, user):
+        self.friends.append(user.to_dbref())
+        self.save()
+        user.friends.append(self.to_dbref())
+        user.save()
+
+    def remove_friend(self, user):
+        self.friends.remove(user)
+        self.save()
+        user.friends.remove(self)
+        user.save()
+
+    def is_friend(self, user):
+        return user in self.friends
 
     # methods used by flask-login
 
