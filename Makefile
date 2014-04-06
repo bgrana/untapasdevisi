@@ -1,4 +1,4 @@
-run:
+start:
 	python untapasdevisi/core.py
 
 clear-db:
