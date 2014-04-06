@@ -11,7 +11,7 @@ from babel.dates import format_date, format_timedelta
 from flask import Flask, request, render_template, redirect, url_for, abort, flash
 from flask.ext.login import LoginManager, login_user, current_user, login_required, logout_user
 
-from models import User, Activity, Local, connect_db
+from models import User, FriendshipRequest, Activity, Local, connect_db
 from forms import ProfileForm, RegisterForm, LoginForm
 
 # Setup
@@ -60,7 +60,6 @@ def date_filter(date):
 # Routes
 ###############################################################################
 
-
 @app.route('/', methods=['GET'])
 @login_required
 def get_index():
@@ -87,7 +86,18 @@ def post_settings():
 @app.route('/solicitudes', methods=['GET'])
 @login_required
 def get_friend_requests():
-    return render_template('friend_requests.html', user=current_user)
+    requests = current_user.get_requests()
+    return render_template('friend_requests.html', user=current_user, requests=requests)
+
+
+@app.route('/solicitudes/<id>', methods=['POST'])
+@login_required
+def post_accept_request(id):
+    request = FriendshipRequest.objects(id=id).first()
+    if not request:
+        abort(404)
+    current_user.accept_request(request)
+    return redirect(url_for('get_friend_requests'))
 
 
 @app.route('/usuarios/<username>', methods=['GET'])
@@ -106,7 +116,7 @@ def post_friend_request(username):
     visited_user = User.objects(username=username).first()
     if not visited_user or visited_user == current_user:
         abort(404)
-    visited_user.add_friend(current_user)
+    visited_user.request_friendship(current_user)
     return redirect(url_for('get_profile', username=visited_user.username))
 
 
@@ -157,7 +167,6 @@ def post_login():
         return render_template('login.html', error=True, form=form)
 
     login_user(user)
-    print user
     return redirect(url_for('get_index'))
 
 

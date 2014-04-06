@@ -8,6 +8,7 @@ from passlib.hash import bcrypt
 def connect_db():
     mongo.connect('untapasdevisi')
 
+
 class User(mongo.Document):
     username = mongo.StringField(required=True, unique=True)
     firstname = mongo.StringField()
@@ -47,6 +48,21 @@ class User(mongo.Document):
     def has_password(self, password):
         return bcrypt.verify(password, self.password_hash)
 
+    def get_requests(self):
+        return FriendshipRequest.objects(receiver=self)
+
+    def accept_request(self, request):
+        self.add_friend(request.sender)
+        request.delete()
+
+    def has_request_from(self, user):
+        request = FriendshipRequest.objects(sender=user.to_dbref(), receiver=self.to_dbref()).first()
+        return request is not None
+
+    def request_friendship(self, user):
+        request = FriendshipRequest(sender=user.to_dbref(), receiver=self.to_dbref())
+        request.save()
+
     def add_friend(self, user):
         self.friends.append(user.to_dbref())
         self.save()
@@ -80,11 +96,18 @@ class User(mongo.Document):
         return False
 
 
+class FriendshipRequest(mongo.Document):
+    sender = mongo.ReferenceField('User', dbref=True)
+    receiver = mongo.ReferenceField('User', dbref=True)
+    created = mongo.DateTimeField(default=datetime.datetime.now)
+
+
 class Activity(mongo.Document):
     creator = mongo.ReferenceField('User', dbref=True)
     created = mongo.DateTimeField(default=datetime.datetime.now)
 
     meta = {'allow_inheritance': True}
+
 
 class FriendshipActivity(Activity):
     friend = mongo.ReferenceField('User', dbref=True)

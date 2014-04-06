@@ -2,8 +2,20 @@
 
 {% block body %}
   <div class="panel panel-default">
-    <div class="panel-body">
-      No hay solicitudes de amistad nuevas
-    </div>
+    <ul class="list-group">
+      {% if requests %}
+        {% for request in requests %}
+        <li class="list-group-item">
+          <a href="{{ url_for('get_profile', username=request.sender.username) }}">{{ request.sender.username }}</a> hace {{request.created | ago}}
+          <form method="POST" action="{{url_for('post_accept_request', id=request.id)}}"class="pull-right">
+            <button type="submit" class="btn btn-default">Añadir a mis amigos</button>
+          </form>
+          <div class="clearfix"></div>
+        </li>
+        {% endfor %}
+      {% else %}
+        <li class="list-group-item">No hay ninguna petición de amistad.</li>
+      {% endif %}
+    </ul>
   </div>
 {% endblock %}
