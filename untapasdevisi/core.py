@@ -2,15 +2,16 @@
 
 import os
 import utils
+import datetime
 
 import redis
 
-from babel.dates import format_date
+from babel.dates import format_date, format_timedelta
 
 from flask import Flask, request, render_template, redirect, url_for, abort, flash
 from flask.ext.login import LoginManager, login_user, current_user, login_required, logout_user
 
-from models import User, Local, connect_db
+from models import User, Activity, Local, connect_db
 from forms import ProfileForm, RegisterForm, LoginForm
 
 # Setup
@@ -43,12 +44,18 @@ def load_user(userid):
 def unauthorized():
     return redirect(url_for('get_login'))
 
-# Filers
+# Filters
 ###############################################################################
 
 @app.template_filter('date')
 def date_filter(date):
     return format_date(date, format='long', locale='es')
+
+
+@app.template_filter('ago')
+def date_filter(date):
+    delta = datetime.datetime.now() - date
+    return format_timedelta(delta, locale='es')
 
 # Routes
 ###############################################################################
@@ -57,7 +64,7 @@ def date_filter(date):
 @app.route('/', methods=['GET'])
 @login_required
 def get_index():
-    return render_template('index.html', user=current_user, host="127.0.0.1:5000")
+    return render_template('index.html', user=current_user)
 
 
 @app.route('/configuracion', methods=['GET'])
@@ -87,9 +94,10 @@ def get_friend_requests():
 @login_required
 def get_profile(username):
     visited_user = User.objects(username=username).first()
+    activities = Activity.objects(creator=visited_user.to_dbref()).order_by('-created')
     if not visited_user:
         abort(404)
-    return render_template('profile.html', user=current_user, visited_user=visited_user)
+    return render_template('profile.html', user=current_user, visited_user=visited_user, activities=activities)
 
 
 @app.route('/usuarios/<username>/solicitud', methods=['POST'])

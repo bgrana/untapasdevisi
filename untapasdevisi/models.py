@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 import mongoengine as mongo
 from passlib.hash import bcrypt
 
@@ -13,7 +14,7 @@ class User(mongo.Document):
     lastname = mongo.StringField()
     location = mongo.StringField()
     email = mongo.StringField()
-    created = mongo.DateTimeField()
+    created = mongo.DateTimeField(default=datetime.datetime.now)
     activated = mongo.BooleanField()
     password_hash = mongo.StringField()
     friends = mongo.ListField(mongo.ReferenceField('User', dbref=True))
@@ -49,8 +50,11 @@ class User(mongo.Document):
     def add_friend(self, user):
         self.friends.append(user.to_dbref())
         self.save()
+        FriendshipActivity(creator=self.to_dbref(), friend=user.to_dbref()).save()
+
         user.friends.append(self.to_dbref())
         user.save()
+        FriendshipActivity(creator=user.to_dbref(), friend=self.to_dbref()).save()
 
     def remove_friend(self, user):
         self.friends.remove(user)
@@ -75,6 +79,15 @@ class User(mongo.Document):
     def is_anonymous(self):
         return False
 
+
+class Activity(mongo.Document):
+    creator = mongo.ReferenceField('User', dbref=True)
+    created = mongo.DateTimeField(default=datetime.datetime.now)
+
+    meta = {'allow_inheritance': True}
+
+class FriendshipActivity(Activity):
+    friend = mongo.ReferenceField('User', dbref=True)
 
 
 class Local(mongo.Document):

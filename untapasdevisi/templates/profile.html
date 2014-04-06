@@ -31,11 +31,24 @@
     </div>
   </div>
   <div class="col-md-9">
+    {% if not activities %}
     <div class="panel panel-default">
       <div class="panel-body">
         No hay actividad reciente
       </div>
     </div>
+    {% endif %}
+    {% for activity in activities %}
+    <div class="panel panel-default">
+      {% if activity._cls == 'Activity.FriendshipActivity' %}
+      <div class="panel-body">
+        <a href="{{ url_for('get_profile', username=activity.creator.username)}}">{{ activity.creator.username }}</a> y
+        <a href="{{ url_for('get_profile', username=activity.friend.username)}}">{{ activity.friend.username }}</a>
+        son ahora amigos. {{ activity.created | ago }}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
   </div>
 </div>
 
