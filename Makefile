@@ -7,6 +7,9 @@ install:
 lint:
 	flake8 untapasdevisi tests
 
+test: lint
+	nosetests
+
 db.reset: db.clear db.seed
 
 db.seed:
