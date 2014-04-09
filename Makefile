@@ -10,6 +10,9 @@ lint:
 test: lint
 	nosetests
 
+loc:
+	grep -Rv --exclude-dir=venv --include "*.py" --include "*.js" --include "*.html" --include "*.css" "^\s*$$" | wc -l
+
 db.reset: db.clear db.seed
 
 db.seed:
