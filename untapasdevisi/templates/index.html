@@ -10,7 +10,7 @@
         {% for friend in friends %}
         <li class="list-group-item">
           <a href="{{ url_for('get_profile', username=friend.get_friend(user).username) }}">
-            {{ friend.get_friend(user).username }}
+            {{ friend.get_friend(user).screen_name }}
           </a>
         </li>
         {% endfor %}

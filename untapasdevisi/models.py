@@ -33,6 +33,11 @@ class User(Document):
         user.save()
         return user
 
+    @property
+    def screen_name(self):
+        return self.firstname.capitalize()
+
+
     def activate(self):
         self.activated = True
         self.save()
