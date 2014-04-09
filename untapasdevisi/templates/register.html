@@ -12,6 +12,20 @@
         <span class="glyphicon glyphicon-remove form-control-feedback"></span>
         {% endif %}
       </div>
+      <div class="form-group {% if form.firstname.errors %}has-error has-feedback{% endif %}">
+        <label for="firstname">Nombre</label>
+        <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Nombre" value="{{ form.firstname.data }}">
+        {% if form.firstname.errors %}
+        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+        {% endif %}
+      </div>
+      <div class="form-group {% if form.lastname.errors %}has-error has-feedback{% endif %}">
+        <label for="lastname">Apellidos (opcional)</label>
+        <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Nombre" value="{{ form.lastname.data }}">
+        {% if form.lastname.errors %}
+        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+        {% endif %}
+      </div>
       <div class="form-group {% if form.email.errors %}has-error has-feedback{% endif %}">
         <label for="email">Email</label>
         <input type="text" class="form-control" id="email" name="email" placeholder="Email" value="{{ form.email.data }}">

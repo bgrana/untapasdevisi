@@ -11,7 +11,7 @@ def connect_db():
 
 class User(Document):
     username = StringField(required=True, unique=True)
-    firstname = StringField()
+    firstname = StringField(required=True)
     lastname = StringField()
     location = StringField()
     email = StringField()
@@ -25,16 +25,17 @@ class User(Document):
         if user and user.has_password(password):
             return user
 
+    @staticmethod
+    def register(form):
+        user = User(username=form.username.data, firstname=form.firstname.data,
+            lastname=form.lastname.data, email=form.email.data)
+        user.password_hash = bcrypt.encrypt(form.password.data)
+        user.save()
+        return user
+
     def activate(self):
         self.activated = True
         self.save()
-
-    @staticmethod
-    def register(username, password, email):
-        user = User(username=username, email=email)
-        user.password_hash = bcrypt.encrypt(password)
-        user.save()
-        return user
 
     def update(self, form):
         self.username = form.username.data

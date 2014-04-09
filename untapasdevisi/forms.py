@@ -13,7 +13,7 @@ def unique_username(form, field):
 
 class ProfileForm(Form):
     username = TextField('username', validators=[
-        validators.Length(min=1, max=16, message=u'El nombre de usuario debe tener entre 6 y 16 caracteres.'),
+        validators.Length(min=1, max=16, message=u'El nombre de usuario debe tener entre 1 y 16 caracteres.'),
         validators.Required(message='Debes introducir un nombre de usuario.'),
         unique_username
     ])
@@ -35,9 +35,16 @@ class ProfileForm(Form):
 
 class RegisterForm(Form):
     username = TextField('username', validators=[
-        validators.Length(min=1, max=16, message=u'El nombre de usuario debe tener entre 6 y 16 caracteres.'),
+        validators.Length(min=1, max=16, message=u'El nombre de usuario debe tener entre 1 y 16 caracteres.'),
         validators.Required(message=u'Debes introducir un nombre de usuario.'),
         unique_username
+    ])
+    firstname = TextField('firstname', validators=[
+        validators.Length(min=1, max=16, message=u'El nombre debe tener entre 1 y 24 caracteres.'),
+        validators.Required(message=u'Debes introducir un nombre.')
+    ])
+    lastname = TextField('lastname', validators=[
+        validators.Length(max=16, message=u'Los apellidos deben tener como máximo 24 caracteres.')
     ])
     email = TextField('email', validators=[
         validators.Required(message=u'Debes introducir un email.'),
@@ -53,7 +60,6 @@ class RegisterForm(Form):
 
 class LoginForm(Form):
     username = TextField('username', validators=[
-        validators.Length(min=1, max=16, message=u'El nombre de usuario debe tener entre 6 y 16 caracteres.'),
         validators.Required(message=u'Debes introducir un nombre de usuario.'),
     ])
     password = PasswordField('password', [

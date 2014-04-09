@@ -135,6 +135,7 @@ def post_remove_friend(username):
         abort(404)
 
     friendship.delete()
+
     return redirect(url_for('get_profile', username=user.username))
 
 
@@ -180,7 +181,8 @@ def post_login():
 
 @app.route('/registrarse', methods=['GET'])
 def get_register():
-    form = RegisterForm(username='', password='', email='',confirm='')
+    form = RegisterForm(username='', firstname='', lastname='',
+        password='', email='', confirm='')
     return render_template('register.html',form=form)
 
 
@@ -191,7 +193,7 @@ def post_register():
     if not form.validate():
         return render_template('register.html', error=True, form=form)
 
-    user = User.register(form.username.data, form.password.data, form.email.data)
+    user = User.register(form)
 
     key = utils.generate_key()
     redis.set('activation:key:'+ key, user.id)
