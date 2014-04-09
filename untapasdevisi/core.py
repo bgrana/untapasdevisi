@@ -22,14 +22,14 @@ app.config.from_object(__name__)
 app.config.update({
     'DEBUG': True,
     'SECRET_KEY': os.getenv('UNTAPASDEVISI_SECRET_KEY', 'development_key'),
-    'SQLALCHEMY_DATABASE_URI': 'sqlite:////tmp/untapasdevisi_dev.db',
+    'MONGODB_DB_NAME': 'untapasdevisi',
     'REDIS_URL': 'localhost'
 })
 
 
 redis = redis.from_url(app.config['REDIS_URL'])
 
-connect_db()
+connect_db(app.config['MONGODB_DB_NAME'])
 
 login_manager = LoginManager()
 login_manager.init_app(app)

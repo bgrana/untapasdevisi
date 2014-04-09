@@ -5,8 +5,8 @@ from mongoengine import connect, Document, StringField, ReferenceField, DateTime
 from passlib.hash import bcrypt
 
 
-def connect_db():
-    connect('untapasdevisi')
+def connect_db(dbname):
+    connect(dbname)
 
 
 class User(Document):

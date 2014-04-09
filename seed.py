@@ -1,7 +1,7 @@
 import untapasdevisi.models as models
 from untapasdevisi.forms import RegisterForm
 
-models.connect_db()
+models.connect_db('untapasdevisi')
 
 users = [
     models.User.register(RegisterForm(username="dbarbera", password="qwerty",
