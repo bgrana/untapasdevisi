@@ -4,6 +4,9 @@ start:
 install:
 	pip install -r requirements.txt
 
+lint:
+	flake8 untapasdevisi tests
+
 db.reset: db.clear db.seed
 
 db.seed:
