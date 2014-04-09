@@ -1,5 +1,10 @@
 start:
 	python untapasdevisi/core.py
 
-clear-db:
+db.reset: db.clear db.seed
+
+db.seed:
+	python seed.py
+
+db.clear:
 	mongo untapasdevisi --eval "db.dropDatabase();"
