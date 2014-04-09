@@ -21,11 +21,19 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.update({
     'DEBUG': True,
-    'SECRET_KEY': os.getenv('UNTAPASDEVISI_SECRET_KEY', 'development_key'),
+    'SECRET_KEY': 'development_key',
+    'HOST': '127.0.0.1:5000',
+    'MAILGUN_API_KEY': 'key-84mxu54004c5y47zgym0z-d34jnsvl18',
+    'MAILGUN_APP_DOMAIN': 'sandbox74944.mailgun.org',
     'MONGODB_DB_NAME': 'untapasdevisi',
     'REDIS_URL': 'localhost'
 })
 
+mailer = utils.Mailer(
+    app.config['MAILGUN_APP_DOMAIN'],
+    app.config['MAILGUN_API_KEY'],
+    app.config['HOST']
+)
 
 redis = redis.from_url(app.config['REDIS_URL'])
 
@@ -207,7 +215,7 @@ def post_register():
     # expirar en 24h
     redis.expire('activation:key:'+ key, 60*60*24)
 
-    utils.send_validation_email(user, key)
+    mailer.send_validation_email(user, key)
 
     login_user(user)
     return redirect(url_for('get_index'))
@@ -227,7 +235,7 @@ def post_forgot_password():
         redis.set('reset:key:'+ key, user.id)
         # expirar en 24h
         redis.expire('reset:key:'+ key, 60*60*24)
-        utils.sent_reset_password_email(user, key)
+        mailer.sent_reset_password_email(user, key)
         flash(u'Email de recuperacion de contraseña enviado correctamente.', 'success')
         return redirect(url_for('get_login'))
     else:
@@ -296,7 +304,7 @@ def get_resend():
         # expirar en 24h
         redis.expire('activation:key:'+ key, 60*60*24)
 
-        utils.send_validation_email(current_user, key)
+        mailer.send_validation_email(current_user, key)
         flash(u"Email de confirmación reenviado.", 'success')
     else:
         flash(u"Su cuenta ya se encuentra validada.", 'danger')
