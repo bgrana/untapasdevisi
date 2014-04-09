@@ -236,10 +236,9 @@ def post_forgot_password():
         # expirar en 24h
         redis.expire('reset:key:'+ key, 60*60*24)
         mailer.send_reset_password_email(user, key)
-        flash(u'Email de recuperacion de contraseña enviado correctamente.', 'success')
-        return redirect(url_for('get_login'))
-    else:
-        return render_template('forgot_password.html')
+    # we say that is correct anyway for not allowing discovery of registered users
+    flash(u'Email de recuperacion de contraseña enviado correctamente.', 'success')
+    return redirect(url_for('get_login'))
 
 
 @app.route('/resetear-clave', methods=['GET'])
