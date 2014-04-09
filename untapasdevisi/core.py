@@ -70,7 +70,14 @@ def get_index():
 @app.route('/configuracion', methods=['GET'])
 @login_required
 def get_settings():
-    form = ProfileForm(username=current_user.username, email=current_user.email, location=current_user.location)
+    data = {
+        "username": current_user.username,
+        "email": current_user.email,
+        "firstname": current_user.firstname,
+        "lastname": current_user.lastname,
+        "location": current_user.location
+    }
+    form = ProfileForm(**data)
     return render_template('settings.html', user=current_user, form=form)
 
 

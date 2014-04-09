@@ -47,6 +47,8 @@ class User(Document):
         self.email = form.email.data
         if form.password.data:
             self.password_hash = bcrypt.encrypt(form.password.data)
+        self.firstname = form.firstname.data
+        self.lastname = form.lastname.data
         self.location = form.location.data
         self.save()
 

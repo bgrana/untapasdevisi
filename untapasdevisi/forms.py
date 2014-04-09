@@ -7,31 +7,8 @@ from models import User
 
 def unique_username(form, field):
     user = User.objects(username=field.data).first()
-    if user and user != current_user:
+    if user and user.id != current_user.id:
         raise validators.ValidationError('El nombre de usuario ya existe.')
-
-
-class ProfileForm(Form):
-    username = TextField('username', validators=[
-        validators.Length(min=1, max=16, message=u'El nombre de usuario debe tener entre 1 y 16 caracteres.'),
-        validators.Required(message='Debes introducir un nombre de usuario.'),
-        unique_username
-    ])
-    email = TextField('email', validators=[
-        validators.Required(message='Debes introducir un email.'),
-        validators.Email(message='Email no valido.')
-    ])
-    location = TextField('location', validators=[
-        validators.Optional(),
-        validators.Length(min=6, max=16, message=u'La ubicación debe tener entre 6 y 16 caracteres.'),
-    ])
-    password = PasswordField('password', [
-        validators.Optional(),
-        validators.Length(min=6, max=64, message=u'La contraseña debe tener entre 6 y 64 caracteres.'),
-        validators.EqualTo('confirm', message=u'Las contraseñas no coinciden.')
-    ])
-    confirm = PasswordField('confirm')
-
 
 class RegisterForm(Form):
     username = TextField('username', validators=[
@@ -44,6 +21,7 @@ class RegisterForm(Form):
         validators.Required(message=u'Debes introducir un nombre.')
     ])
     lastname = TextField('lastname', validators=[
+        validators.Optional(),
         validators.Length(max=16, message=u'Los apellidos deben tener como máximo 24 caracteres.')
     ])
     email = TextField('email', validators=[
@@ -56,6 +34,18 @@ class RegisterForm(Form):
         validators.EqualTo('confirm', message=u'Las contraseñas no coinciden.')
     ])
     confirm = PasswordField('confirm')
+
+
+class ProfileForm(RegisterForm):
+    password = PasswordField('password', [
+        validators.Optional(),
+        validators.Length(min=6, max=64, message=u'La contraseña debe tener entre 6 y 64 caracteres.'),
+        validators.EqualTo('confirm', message=u'Las contraseñas no coinciden.')
+    ])
+    location = TextField('location', validators=[
+        validators.Optional(),
+        validators.Length(min=6, max=16, message=u'La ubicación debe tener entre 6 y 16 caracteres.'),
+    ])
 
 
 class LoginForm(Form):
