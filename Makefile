@@ -1,6 +1,9 @@
 start:
 	python untapasdevisi/core.py
 
+install:
+	pip install -r requirements.txt
+
 db.reset: db.clear db.seed
 
 db.seed:
