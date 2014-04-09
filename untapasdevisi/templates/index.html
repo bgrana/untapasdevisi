@@ -3,12 +3,16 @@
 {% block body %}
 <div class="row">
   <div class="col-md-3">
-    {% if user.friends %}
+    {% if friends %}
     <div class="panel panel-default">
-      <div class="panel-heading">Amigos ({{ user.friends | length }})</div>
+      <div class="panel-heading">Amigos ({{ friends | length }})</div>
       <ul class="list-group">
-        {% for friend in user.friends %}
-        <li class="list-group-item"><a href="{{ url_for('get_profile', username=friend.username) }}">{{ friend.username }}</a></li>
+        {% for friend in friends %}
+        <li class="list-group-item">
+          <a href="{{ url_for('get_profile', username=friend.get_friend(user).username) }}">
+            {{ friend.get_friend(user).username }}
+          </a>
+        </li>
         {% endfor %}
     </div>
     {% endif %}

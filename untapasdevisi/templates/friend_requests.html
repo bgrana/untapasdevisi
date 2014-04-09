@@ -6,9 +6,12 @@
       {% if requests %}
         {% for request in requests %}
         <li class="list-group-item">
-          <a href="{{ url_for('get_profile', username=request.sender.username) }}">{{ request.sender.username }}</a> hace {{request.created | ago}}
+          <a href="{{ url_for('get_profile', username=request.creator.username) }}">
+            {{ request.creator.username }}
+          </a>
+          quiere ser tu amigo. Recibido hace {{request.created | ago}}.
           <form method="POST" action="{{url_for('post_accept_request', id=request.id)}}"class="pull-right">
-            <button type="submit" class="btn btn-default">Añadir a mis amigos</button>
+            <button type="submit" class="btn btn-default btn-xs">Aceptar</button>
           </form>
           <div class="clearfix"></div>
         </li>

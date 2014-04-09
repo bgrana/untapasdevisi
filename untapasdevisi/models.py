@@ -1,24 +1,23 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-import mongoengine as mongo
+from mongoengine import connect, Document, StringField, ReferenceField, DateTimeField, BooleanField, Q
 from passlib.hash import bcrypt
 
 
 def connect_db():
-    mongo.connect('untapasdevisi')
+    connect('untapasdevisi')
 
 
-class User(mongo.Document):
-    username = mongo.StringField(required=True, unique=True)
-    firstname = mongo.StringField()
-    lastname = mongo.StringField()
-    location = mongo.StringField()
-    email = mongo.StringField()
-    created = mongo.DateTimeField(default=datetime.datetime.now)
-    activated = mongo.BooleanField()
-    password_hash = mongo.StringField()
-    friends = mongo.ListField(mongo.ReferenceField('User', dbref=True))
+class User(Document):
+    username = StringField(required=True, unique=True)
+    firstname = StringField()
+    lastname = StringField()
+    location = StringField()
+    email = StringField()
+    created = DateTimeField(default=datetime.datetime.now)
+    activated = BooleanField()
+    password_hash = StringField()
 
     @staticmethod
     def authenticate(username, password):
@@ -48,39 +47,6 @@ class User(mongo.Document):
     def has_password(self, password):
         return bcrypt.verify(password, self.password_hash)
 
-    def get_requests(self):
-        return FriendshipRequest.objects(receiver=self)
-
-    def accept_request(self, request):
-        self.add_friend(request.sender)
-        request.delete()
-
-    def has_request_from(self, user):
-        request = FriendshipRequest.objects(sender=user.to_dbref(), receiver=self.to_dbref()).first()
-        return request is not None
-
-    def request_friendship(self, user):
-        request = FriendshipRequest(sender=user.to_dbref(), receiver=self.to_dbref())
-        request.save()
-
-    def add_friend(self, user):
-        self.friends.append(user.to_dbref())
-        self.save()
-        FriendshipActivity(creator=self.to_dbref(), friend=user.to_dbref()).save()
-
-        user.friends.append(self.to_dbref())
-        user.save()
-        FriendshipActivity(creator=user.to_dbref(), friend=self.to_dbref()).save()
-
-    def remove_friend(self, user):
-        self.friends.remove(user)
-        self.save()
-        user.friends.remove(self)
-        user.save()
-
-    def is_friend(self, user):
-        return user in self.friends
-
     # methods used by flask-login
 
     def get_id(self):
@@ -96,23 +62,70 @@ class User(mongo.Document):
         return False
 
 
-class FriendshipRequest(mongo.Document):
-    sender = mongo.ReferenceField('User', dbref=True)
-    receiver = mongo.ReferenceField('User', dbref=True)
-    created = mongo.DateTimeField(default=datetime.datetime.now)
+class Friendship(Document):
+    creator = ReferenceField('User')
+    friend = ReferenceField('User')
+    created = DateTimeField(default=datetime.datetime.now)
+    confirmed = BooleanField(default=False)
+
+    @staticmethod
+    def create(creator, friend):
+        friendship = Friendship(creator=creator.id, friend=friend.id)
+        friendship.save()
+
+        return friendship
+
+    @staticmethod
+    def get_from_users(users):
+        if users[0] == users[1]:
+            return None
+
+        query = Friendship.objects.filter(
+            (Q(creator=users[0].id) & Q(friend=users[1].id)) |
+            (Q(creator=users[1].id) & Q(friend=users[0].id))
+        )
+
+        return query.first()
+
+    @staticmethod
+    def get_confirmed_from_user(user):
+        return Friendship.objects.filter((Q(creator=user.id) | Q(friend=user.id)) & Q(confirmed=True))
+
+    @staticmethod
+    def get_unconfirmed_from_friend(friend):
+        return Friendship.objects.filter(Q(friend=friend.id) & Q(confirmed=False))
+
+    def can_confirm(self, user):
+        return user == self.friend
+
+    def confirm(self):
+        self.confirmed = True
+        self.save()
+
+        creator_activity = FriendshipActivity(creator=self.creator.id, friend=self.friend.id)
+        creator_activity.save()
+
+        friend_activity = FriendshipActivity(creator=self.friend.id, friend=self.creator.id)
+        friend_activity.save()
+
+    def get_friend(self, user):
+        if user == self.creator:
+            return self.friend
+        else:
+            return self.creator
 
 
-class Activity(mongo.Document):
-    creator = mongo.ReferenceField('User', dbref=True)
-    created = mongo.DateTimeField(default=datetime.datetime.now)
+class Activity(Document):
+    creator = ReferenceField('User')
+    created = DateTimeField(default=datetime.datetime.now)
 
     meta = {'allow_inheritance': True}
 
 
 class FriendshipActivity(Activity):
-    friend = mongo.ReferenceField('User', dbref=True)
+    friend = ReferenceField('User')
 
 
-class Local(mongo.Document):
-    localname = mongo.StringField(required=True, unique=True)
-    location = mongo.StringField()
+class Local(Document):
+    localname = StringField(required=True, unique=True)
+    location = StringField()

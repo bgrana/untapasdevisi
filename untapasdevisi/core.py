@@ -11,7 +11,7 @@ from babel.dates import format_date, format_timedelta
 from flask import Flask, request, render_template, redirect, url_for, abort, flash
 from flask.ext.login import LoginManager, login_user, current_user, login_required, logout_user
 
-from models import User, FriendshipRequest, Activity, Local, connect_db
+from models import User, Friendship, Activity, Local, connect_db
 from forms import ProfileForm, RegisterForm, LoginForm
 
 # Setup
@@ -63,7 +63,8 @@ def date_filter(date):
 @app.route('/', methods=['GET'])
 @login_required
 def get_index():
-    return render_template('index.html', user=current_user)
+    friends = Friendship.get_confirmed_from_user(current_user)
+    return render_template('index.html', user=current_user, friends=friends)
 
 
 @app.route('/configuracion', methods=['GET'])
@@ -86,17 +87,17 @@ def post_settings():
 @app.route('/solicitudes', methods=['GET'])
 @login_required
 def get_friend_requests():
-    requests = current_user.get_requests()
+    requests = Friendship.get_unconfirmed_from_friend(current_user)
     return render_template('friend_requests.html', user=current_user, requests=requests)
 
 
 @app.route('/solicitudes/<id>', methods=['POST'])
 @login_required
 def post_accept_request(id):
-    request = FriendshipRequest.objects(id=id).first()
-    if not request:
+    friendship = Friendship.objects(id=id).first()
+    if not friendship or not friendship.can_confirm(current_user):
         abort(404)
-    current_user.accept_request(request)
+    friendship.confirm()
     return redirect(url_for('get_friend_requests'))
 
 
@@ -104,10 +105,12 @@ def post_accept_request(id):
 @login_required
 def get_profile(username):
     visited_user = User.objects(username=username).first()
-    activities = Activity.objects(creator=visited_user.to_dbref()).order_by('-created')
     if not visited_user:
         abort(404)
-    return render_template('profile.html', user=current_user, visited_user=visited_user, activities=activities)
+    friendship = Friendship.get_from_users([current_user, visited_user])
+    activities = Activity.objects(creator=visited_user).order_by('-created')
+    return render_template('profile.html', user=current_user, visited_user=visited_user,
+        activities=activities, friendship=friendship)
 
 
 @app.route('/usuarios/<username>/solicitud', methods=['POST'])
@@ -116,7 +119,7 @@ def post_friend_request(username):
     visited_user = User.objects(username=username).first()
     if not visited_user or visited_user == current_user:
         abort(404)
-    visited_user.request_friendship(current_user)
+    friendship = Friendship.create(creator=current_user, friend=visited_user)
     return redirect(url_for('get_profile', username=visited_user.username))
 
 
@@ -124,9 +127,14 @@ def post_friend_request(username):
 @login_required
 def post_remove_friend(username):
     user = User.objects(username=username).first()
-    if not user or not current_user.is_friend(user):
+    if not user:
         abort(404)
-    current_user.remove_friend(user)
+
+    friendship = Friendship.get_from_users([current_user, user])
+    if not friendship:
+        abort(404)
+
+    friendship.delete()
     return redirect(url_for('get_profile', username=user.username))
 
 

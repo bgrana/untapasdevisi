@@ -6,20 +6,26 @@
     <a class="navbar-brand" href="{{ url_for('get_profile', username=visited_user.username) }}">{{ visited_user.username }}</a>
   </div>
   <div class="collapse navbar-collapse">
-    {% if user != visited_user %}
-    {% if visited_user.is_friend(user)%}
-    <form method="POST" action="{{ url_for('post_remove_friend', username=visited_user.username) }}"class="navbar-form navbar-right">
-      <button type="submit" class="btn btn-default">Eliminar de mis amigos</button>
-    </form>
-    {% elif not visited_user.has_request_from(user) %}
-    <form method="POST" action="{{ url_for('post_friend_request', username=visited_user.username) }}"class="navbar-form navbar-right">
+    {% if user != visited_user and friendship %}
+      {% if friendship.confirmed %}
+        <form method="POST" action="{{ url_for('post_remove_friend', username=visited_user.username) }}"
+          class="navbar-form navbar-right">
+          <button type="submit" class="btn btn-default">Eliminar de mis amigos</button>
+        </form>
+      {% elif friendship.can_confirm(user) %}
+      <form method="POST" action="{{ url_for('post_accept_request', id=friendship.id) }}" class="navbar-form navbar-right">
+        <button type="submit" class="btn btn-default">Confirmar solicitud</button>
+      </form>
+      {% else %}
+      <form method="POST" class="navbar-form navbar-right">
+        <button type="submit" class="btn btn-default disabled">Solicitud enviada</button>
+      </form>
+      {% endif %}
+    {% elif user != visited_user and not friendship %}
+    <form method="POST" action="{{ url_for('post_friend_request', username=visited_user.username) }}"
+      class="navbar-form navbar-right">
       <button type="submit" class="btn btn-default">Añadir a mis amigos</button>
     </form>
-    {% else %}
-    <form method="POST" class="navbar-form navbar-right">
-      <button type="submit" class="btn btn-default disabled">Solicitud enviada</button>
-    </form>
-    {% endif %}
     {% endif %}
   </div>
 </nav>
