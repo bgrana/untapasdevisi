@@ -1,22 +1,16 @@
-# Readme
-## Requerimientos software
+UntapasDevisi
+=============
 
-Redis
-```bash
-wget http://download.redis.io/redis-stable.tar.gz
-tar xvzf redis-stable.tar.gz
-cd redis-stable
-make
-```
-sqlite
-```bash
-sudo apt-get install sqlite
-```
-python-dev
-```bash
-sudo apt-get install python-dev
-```
+Untapasdevisi es una mini red social para los amantes de las tapas. Realizada
+como práctica de la asignatura Ingeniería del Software II en la Universidad
+Politécnica de Madrid.
+
+
 Dependencias
-```bash
-sudo pip install -r /ruta_al_proyecto/requeriments.txt
-```
+------------
+
+- Python 2.7
+  - virtualenv
+  - pip
+- Mongodb
+- Redis
