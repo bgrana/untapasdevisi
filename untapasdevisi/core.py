@@ -23,14 +23,14 @@ app.config.update({
     'DEBUG': True,
     'SECRET_KEY': 'development_key',
     'HOST': '127.0.0.1:5000',
+    'MAILGUN_API_USER': 'sandbox74944',
     'MAILGUN_API_KEY': 'key-84mxu54004c5y47zgym0z-d34jnsvl18',
-    'MAILGUN_APP_DOMAIN': 'sandbox74944.mailgun.org',
     'MONGODB_DB_NAME': 'untapasdevisi',
     'REDIS_URL': 'localhost'
 })
 
 mailer = utils.Mailer(
-    app.config['MAILGUN_APP_DOMAIN'],
+    app.config['MAILGUN_API_USER'],
     app.config['MAILGUN_API_KEY'],
     app.config['HOST']
 )
@@ -229,13 +229,13 @@ def get_forgot_password():
 @app.route('/recuperar-clave', methods=['POST'])
 def post_forgot_password():
     username = request.form['username']
-    user = User.object(username=username).first()
+    user = User.objects(username=username).first()
     if user:
         key = utils.generate_key()
         redis.set('reset:key:'+ key, user.id)
         # expirar en 24h
         redis.expire('reset:key:'+ key, 60*60*24)
-        mailer.sent_reset_password_email(user, key)
+        mailer.send_reset_password_email(user, key)
         flash(u'Email de recuperacion de contraseña enviado correctamente.', 'success')
         return redirect(url_for('get_login'))
     else:

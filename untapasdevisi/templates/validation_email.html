@@ -3,7 +3,7 @@
 <p>Hola {{ user.username }},</p>
 
 <p>Hemos creado una cuenta a tu nombre. Pulsa en este
-<a href="http://{{ host }}/activar?key={{ key }}">enlace</a> para activarla.</p>
+<a href="http://{{ host }}{{ url_for('get_activate') }}?key={{ key }}">enlace</a> para activarla.</p>
 
 <p>Un saludo,</p>
 <p>Jesús Sánchez, CEO de UntapasDevisi</p>

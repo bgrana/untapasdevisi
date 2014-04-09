@@ -10,11 +10,11 @@ def generate_key():
 
 
 class Mailer:
-    def __init__(self, app_domain, api_key, host):
+    def __init__(self, api_user, api_key, host):
         self.auth = ("api", api_key)
         self.host = host
-        self.api_url = "https://api.mailgun.net/v2/%s/messages" % app_domain
-        self.email = "untapasdevisi@%s>" % app_domain
+        self.api_url = "https://api.mailgun.net/v2/%s.mailgun.org/messages" % api_user
+        self.email = "untapasdevisi@%s.mailgun.org" % api_user
 
     def send_validation_email(self, user, key):
         data = {
@@ -25,7 +25,7 @@ class Mailer:
         }
         return requests.post(self.api_url, auth=self.auth, data=data)
 
-    def send_reset_password_email(user, key):
+    def send_reset_password_email(self, user, key):
         data = {
             "from": "UnTapasDevisi <%s>" % self.email,
             "to": [user.email],

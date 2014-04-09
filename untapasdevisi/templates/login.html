@@ -18,6 +18,7 @@
         {% if form.password.errors %}
         <span class="glyphicon glyphicon-remove form-control-feedback"></span>
         {% endif %}
+        <p class="help-block"><a href="{{ url_for('get_forgot_password') }}">¿Olvidastes la contraseña?</a></p>
       </div>
 
       {% if form.errors %}
