@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<h1>Registrar un nuevo local</h1>
+<form role="form" method="POST">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="form-group {% if form.localname.errors %}has-error has-feedback{% endif %}">
+        <label for="localname">Nombre</label>
+        <input type="text" class="form-control" id="localname" name="localname" placeholder="Nombre de local" value="{{ form.localname.data }}" />
+        {% if form.localname.errors %}
+        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+        {% endif %}
+      </div>
+      <div class="form-group {% if form.location.errors %}has-error has-feedback{% endif %}">
+        <label for="location">Direccion</label>
+        <input type="text" class="form-control" id="location" name="location" placeholder="Dirección de local" value="{{ form.location.data }}">
+        {% if form.location.errors %}
+        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+        {% endif %}
+      </div>
+      {% if form.errors %}
+      <div class="alert alert-danger alert-dismissable">
+        Errores:
+        {% for error, messages in form.errors.iteritems() %}
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    <div class="panel-footer">
+      <button type="submit" class="btn btn-default">Crear local</button>
+    </div>
+  </div>
+</form>
+
+{% endblock %}

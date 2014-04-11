@@ -12,7 +12,7 @@ from flask import Flask, request, render_template, redirect, url_for, abort, fla
 from flask.ext.login import LoginManager, login_user, current_user, login_required, logout_user
 
 from models import User, Friendship, Activity, Local, connect_db
-from forms import ProfileForm, RegisterForm, LoginForm
+from forms import ProfileForm, RegisterForm, LoginForm, LocalForm
 
 # Setup
 ###############################################################################
@@ -154,23 +154,34 @@ def post_remove_friend(username):
     return redirect(url_for('get_profile', username=user.username))
 
 
+@app.route('/locales/<localname>', methods=['GET'])
+@login_required
+def get_local_profile(localname):
+    local = Local.get_by_localname(localname)
+    if not local:
+        abort(404)
+    return render_template('local_profile.html',user=current_user, local=local)
+
+
 @app.route('/locales', methods=['GET'])
-def get_locales():
-    return render_template('locales.html',user=current_user)
+@login_required
+def get_locals():
+    form = LocalForm(localname='',location='')
+    return render_template('locals.html',user=current_user,form=form)
 
 
-@app.route('/locales/',methods=['POST'])
-def post_locales():
+@app.route('/locales', methods=['POST'])
+@login_required
+def post_locals():
     localname = request.form['localname']
-    address = request.form['address']
+    location = request.form['location']
+    form = LocalForm(localname=localname,location=location)
 
     if not form.validate():
-        return render_template('locales.html', user=current_user, error=True)
+        return render_template('locals.html', user=current_user, error=True, form=form)
 
-    local = Local(localname, address)
-    local.save()
-    return render_template('perfil_local.html', user=current_user)
-
+    local = Local.create_local(localname,location)
+    return redirect(url_for('get_local_profile', localname=localname))
 
 
 @app.route('/entrar', methods=['GET'])

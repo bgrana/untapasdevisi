@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<nav class="navbar navbar-default" role="navigation">
+  <div class="navbar-header">
+    <a class="navbar-brand" href="#">{{ local.localname }}</a>
+  </div>
+</nav>
+
+<div class="row">
+  <div class="col-md-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">Información</div>
+      <ul class="list-group">
+        <li class="list-group-item"><span class="glyphicon glyphicon-time"></span> {{ local.created | date }}</li>
+        {% if local.location %}
+        <li class="list-group-item"><span class="glyphicon glyphicon-map-marker"></span> {{ local.location }}</li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-md-9">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        No hay actividad reciente
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

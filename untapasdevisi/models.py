@@ -136,4 +136,17 @@ class FriendshipActivity(Activity):
 
 class Local(Document):
     localname = StringField(required=True, unique=True)
-    location = StringField()
+    location = StringField(required=True)
+    created = DateTimeField(default=datetime.datetime.now)
+
+
+    @staticmethod
+    def create_local(localname, location):
+        local = Local(localname=localname,location=location)
+        local.save()
+        return local
+
+
+    @staticmethod
+    def get_by_localname(localname):
+        return Local.objects(localname=localname).first()
