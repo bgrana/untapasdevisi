@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
 import utils
 import datetime
 
@@ -8,8 +7,10 @@ import redis
 
 from babel.dates import format_date, format_timedelta
 
-from flask import Flask, request, render_template, redirect, url_for, abort, flash
-from flask.ext.login import LoginManager, login_user, current_user, login_required, logout_user
+from flask import Flask, request, render_template, redirect, url_for, \
+    abort, flash
+from flask.ext.login import LoginManager, login_user, current_user, \
+    login_required, logout_user
 
 from models import User, Friendship, Activity, Local, connect_db
 from forms import ProfileForm, RegisterForm, LoginForm, LocalForm
@@ -55,18 +56,20 @@ def unauthorized():
 # Filters
 ###############################################################################
 
+
 @app.template_filter('date')
 def date_filter(date):
     return format_date(date, format='long', locale='es')
 
 
 @app.template_filter('ago')
-def date_filter(date):
+def ago_filter(date):
     delta = datetime.datetime.now() - date
     return format_timedelta(delta, locale='es')
 
 # Routes
 ###############################################################################
+
 
 @app.route('/', methods=['GET'])
 @login_required
@@ -103,7 +106,8 @@ def post_settings():
 @login_required
 def get_friend_requests():
     requests = Friendship.get_unconfirmed_from_friend(current_user)
-    return render_template('friend_requests.html', user=current_user, requests=requests)
+    return render_template(
+        'friend_requests.html', user=current_user, requests=requests)
 
 
 @app.route('/solicitudes/<id>', methods=['POST'])
@@ -124,7 +128,8 @@ def get_profile(username):
         abort(404)
     friendship = Friendship.get_from_users([current_user, visited_user])
     activities = Activity.objects(creator=visited_user).order_by('-created')
-    return render_template('profile.html', user=current_user, visited_user=visited_user,
+    return render_template(
+        'profile.html', user=current_user, visited_user=visited_user,
         activities=activities, friendship=friendship)
 
 
@@ -134,7 +139,7 @@ def post_friend_request(username):
     visited_user = User.objects(username=username).first()
     if not visited_user or visited_user == current_user:
         abort(404)
-    friendship = Friendship.create(creator=current_user, friend=visited_user)
+    Friendship.create(creator=current_user, friend=visited_user)
     return redirect(url_for('get_profile', username=visited_user.username))
 
 
@@ -160,14 +165,15 @@ def get_local_profile(localname):
     local = Local.get_by_localname(localname)
     if not local:
         abort(404)
-    return render_template('local_profile.html',user=current_user, local=local)
+    return render_template(
+        'local_profile.html', user=current_user, local=local)
 
 
 @app.route('/locales', methods=['GET'])
 @login_required
 def get_locals():
-    form = LocalForm(localname='',location='')
-    return render_template('locals.html',user=current_user,form=form)
+    form = LocalForm(localname='', location='')
+    return render_template('locals.html', user=current_user, form=form)
 
 
 @app.route('/locales', methods=['POST'])
@@ -175,18 +181,19 @@ def get_locals():
 def post_locals():
     localname = request.form['localname']
     location = request.form['location']
-    form = LocalForm(localname=localname,location=location)
+    form = LocalForm(localname=localname, location=location)
 
     if not form.validate():
-        return render_template('locals.html', user=current_user, error=True, form=form)
+        return render_template(
+            'locals.html', user=current_user, error=True, form=form)
 
-    local = Local.create_local(localname,location)
+    Local.create_local(localname, location)
     return redirect(url_for('get_local_profile', localname=localname))
 
 
 @app.route('/entrar', methods=['GET'])
 def get_login():
-    form = LoginForm(username='',password='')
+    form = LoginForm(username='', password='')
     return render_template('login.html', form=form)
 
 
@@ -207,9 +214,10 @@ def post_login():
 
 @app.route('/registrarse', methods=['GET'])
 def get_register():
-    form = RegisterForm(username='', firstname='', lastname='',
+    form = RegisterForm(
+        username='', firstname='', lastname='',
         password='', email='', confirm='')
-    return render_template('register.html',form=form)
+    return render_template('register.html', form=form)
 
 
 @app.route('/registrarse', methods=['POST'])
@@ -222,9 +230,9 @@ def post_register():
     user = User.register(form)
 
     key = utils.generate_key()
-    redis.set('activation:key:'+ key, user.id)
+    redis.set('activation:key:' + key, user.id)
     # expirar en 24h
-    redis.expire('activation:key:'+ key, 60*60*24)
+    redis.expire('activation:key:' + key, 60*60*24)
 
     mailer.send_validation_email(user, key)
 
@@ -243,12 +251,14 @@ def post_forgot_password():
     user = User.objects(username=username).first()
     if user:
         key = utils.generate_key()
-        redis.set('reset:key:'+ key, user.id)
+        redis.set('reset:key:' + key, user.id)
         # expirar en 24h
-        redis.expire('reset:key:'+ key, 60*60*24)
+        redis.expire('reset:key:' + key, 60*60*24)
         mailer.send_reset_password_email(user, key)
-    # we say that is correct anyway for not allowing discovery of registered users
-    flash(u'Email de recuperacion de contraseña enviado correctamente.', 'success')
+    # we say that is correct anyway for not allowing
+    # discovery of registered users
+    flash(u'Email de recuperacion de contraseña \
+        enviado correctamente.', 'success')
     return redirect(url_for('get_login'))
 
 
@@ -310,9 +320,9 @@ def get_activate():
 def get_resend():
     if not current_user.activated:
         key = utils.generate_key()
-        redis.set('activation:key:'+ key, current_user.id)
+        redis.set('activation:key:' + key, current_user.id)
         # expirar en 24h
-        redis.expire('activation:key:'+ key, 60*60*24)
+        redis.expire('activation:key:' + key, 60*60*24)
 
         mailer.send_validation_email(current_user, key)
         flash(u"Email de confirmación reenviado.", 'success')

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-from mongoengine import connect, Document, StringField, ReferenceField, DateTimeField, BooleanField, Q
+from mongoengine import connect, Document, StringField, \
+    ReferenceField, DateTimeField, BooleanField, Q
 from passlib.hash import bcrypt
 
 
@@ -27,7 +28,8 @@ class User(Document):
 
     @staticmethod
     def register(form):
-        user = User(username=form.username.data, firstname=form.firstname.data,
+        user = User(
+            username=form.username.data, firstname=form.firstname.data,
             lastname=form.lastname.data, email=form.email.data)
         user.password_hash = bcrypt.encrypt(form.password.data)
         user.save()
@@ -36,7 +38,6 @@ class User(Document):
     @property
     def screen_name(self):
         return self.firstname.capitalize()
-
 
     def activate(self):
         self.activated = True
@@ -97,11 +98,13 @@ class Friendship(Document):
 
     @staticmethod
     def get_confirmed_from_user(user):
-        return Friendship.objects.filter((Q(creator=user.id) | Q(friend=user.id)) & Q(confirmed=True))
+        return Friendship.objects.filter(
+            (Q(creator=user.id) | Q(friend=user.id)) & Q(confirmed=True))
 
     @staticmethod
     def get_unconfirmed_from_friend(friend):
-        return Friendship.objects.filter(Q(friend=friend.id) & Q(confirmed=False))
+        return Friendship.objects.filter(
+            Q(friend=friend.id) & Q(confirmed=False))
 
     def can_confirm(self, user):
         return user == self.friend
@@ -110,10 +113,12 @@ class Friendship(Document):
         self.confirmed = True
         self.save()
 
-        creator_activity = FriendshipActivity(creator=self.creator.id, friend=self.friend.id)
+        creator_activity = FriendshipActivity(
+            creator=self.creator.id, friend=self.friend.id)
         creator_activity.save()
 
-        friend_activity = FriendshipActivity(creator=self.friend.id, friend=self.creator.id)
+        friend_activity = FriendshipActivity(
+            creator=self.friend.id, friend=self.creator.id)
         friend_activity.save()
 
     def get_friend(self, user):
@@ -139,13 +144,11 @@ class Local(Document):
     location = StringField(required=True)
     created = DateTimeField(default=datetime.datetime.now)
 
-
     @staticmethod
     def create_local(localname, location):
-        local = Local(localname=localname,location=location)
+        local = Local(localname=localname, location=location)
         local.save()
         return local
-
 
     @staticmethod
     def get_by_localname(localname):
