@@ -4,8 +4,6 @@
 
 # Virtualenv
 apt-get install -y virtualenvwrapper
-virtualenv .
-. ./bin/activate
 
 # Redis
 DIR=$(pwd)
@@ -21,6 +19,13 @@ apt-get install -y python-dev
 
 # Mongodb
 apt-get install -y mongodb
+
+# Activar el virtualenv
+virtualenv .
+. ./bin/activate
+
+# SetupTools
+curl https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py | python
 
 # Dependencias
 make install
