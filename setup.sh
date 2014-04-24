@@ -28,4 +28,4 @@ virtualenv .
 curl https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py | python
 
 # Dependencias
-make install
+pip install -r requirements.txt
