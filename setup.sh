@@ -6,13 +6,7 @@
 apt-get install -y virtualenvwrapper
 
 # Redis
-DIR=$(pwd)
-wget http://download.redis.io/redis-stable.tar.gz
-tar xvzf redis-stable.tar.gz
-cd redis-stable
-make
 apt-get install -y redis-server
-cd $DIR
 
 # Python-dev
 apt-get install -y python-dev
@@ -21,11 +15,8 @@ apt-get install -y python-dev
 apt-get install -y mongodb
 
 # Activar el virtualenv
-virtualenv .
-. ./bin/activate
-
-# SetupTools
-curl https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py | python
+virtualenv venv
+. venv/bin/activate
 
 # Dependencias
 pip install -r requirements.txt
