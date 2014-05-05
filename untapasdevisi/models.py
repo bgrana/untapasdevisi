@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-from mongoengine import connect, Document, StringField, \
-    ReferenceField, DateTimeField, BooleanField, Q
+from mongoengine import connect, Document, StringField
+from mongoengine import ReferenceField, DateTimeField, BooleanField, Q
 from passlib.hash import bcrypt
 
 
@@ -38,6 +38,10 @@ class User(Document):
     @property
     def screen_name(self):
         return self.firstname.capitalize()
+
+    @staticmethod
+    def search(q, n):
+        return User.objects.filter(Q(firstname__icontains=q) | Q(lastname__icontains=q) | Q(username__icontains=q))
 
     def activate(self):
         self.activated = True

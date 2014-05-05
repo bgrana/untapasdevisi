@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import utils
+from bson import json_util
 import datetime
 
 import redis
 
 from babel.dates import format_date, format_timedelta
 
-from flask import Flask, request, render_template, redirect, url_for, \
-    abort, flash
-from flask.ext.login import LoginManager, login_user, current_user, \
-    login_required, logout_user
+from flask import Flask, request, render_template, redirect, url_for
+from flask import abort, flash, jsonify
+from flask.ext.login import LoginManager, login_user, current_user
+from flask.ext.login import login_required, logout_user
 
 from models import User, Friendship, Activity, Local, connect_db
 from forms import ProfileForm, RegisterForm, LoginForm, LocalForm
@@ -331,8 +332,27 @@ def get_resend():
     return redirect(url_for('get_index'))
 
 
+# API
+###############################################################################
+
+
+@app.route('/api/search/users', methods=['GET'])
+def get_user_search():
+    q = request.args.get('q')
+    users = User.search(q, 5)
+    return users.to_json()
+
+
+@app.route('/api/search/locals', methods=['GET'])
+def get_local_search():
+    q = request.args.get('q')
+    locals = Local.objects(localname__icontains=q).limit(5)
+    return locals.to_json()
+
+
 # ERROR HANDLERS
 ###############################################################################
+
 
 @app.errorhandler(404)
 def page_not_found(error):
