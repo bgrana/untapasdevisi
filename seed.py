@@ -9,3 +9,7 @@ users = [
     models.User.register(RegisterForm(username="jesus", password="qwerty",
         email="jesus@vatican.va", firstname="Jesus"))
 ]
+
+locals = [
+    models.Local.create_local("barpaco", "Madrid")
+]

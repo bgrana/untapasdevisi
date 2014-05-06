@@ -1,20 +1,33 @@
 $(function() {
 
-  var results = new Bloodhound({
+  var users = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
     queryTokenizer: Bloodhound.tokenizers.whitespace,
     remote: {
       url: '../api/search/users?q=%QUERY',
       filter: function(response) {
-        console.log(response)
         return $.map(response, function(user) {
-          return { name: user.firstname + " " + user.lastname };
+          return { name: user.firstname + " " + user.lastname, username: user.username };
         });
       }
     }
   });
 
-  results.initialize();
+  var places = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    remote: {
+      url: '../api/search/places?q=%QUERY',
+      filter: function(response) {
+        return $.map(response, function(place) {
+          return { name: place.localname, slug: place.localname};
+        });
+      }
+    }
+  });
+
+  users.initialize();
+  places.initialize();
 
   $('#search-bar').typeahead({
     hint: true,
@@ -22,9 +35,22 @@ $(function() {
     minLength: 1
   },
   {
-    name: 'results',
+    name: 'users',
     displayKey: 'name',
-
-    source: results.ttAdapter()
+    source: users.ttAdapter(),
+    templates: {
+      header: '<h3 class="section-name">Personas</h3>',
+      suggestion: Handlebars.compile('<a href="/usuarios/{{username}}">{{name}} <span class="slug">({{username}})</span></a>')
+    }
+  },
+  {
+    name: 'places',
+    displayKey: 'name',
+    source: places.ttAdapter(),
+    templates: {
+      header: '<h3 class="section-name">Locales</h3>',
+      suggestion: Handlebars.compile('<a href="/locales/{{slug}}">{{name}}</a>')
+    }
   });
+
 });

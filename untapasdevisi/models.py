@@ -157,3 +157,7 @@ class Local(Document):
     @staticmethod
     def get_by_localname(localname):
         return Local.objects(localname=localname).first()
+
+    @staticmethod
+    def search(q, n):
+        return Local.objects(localname__icontains=q).limit(5)

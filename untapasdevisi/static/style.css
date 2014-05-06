@@ -10,6 +10,12 @@ body {
   width: 100%;
 }
 
+.search-container .section-name {
+    margin: 0 20px 5px 20px;
+    padding: 3px 0;
+    border-bottom: 1px solid #ccc;
+}
+
 .twitter-typeahead .tt-hint {
     display: block;
     height: 34px;
@@ -99,6 +105,22 @@ body {
 
 }
 
-.tt-suggestion p {
+.tt-suggestion a {
     margin: 0;
+    color: #333;
+}
+
+.tt-suggestion .slug {
+    font-size: 14px;
+    color: #777;
+}
+
+.tt-suggestion a:hover {
+    text-decoration: none;
+}
+
+.tt-suggestion.tt-cursor {
+  color: #fff;
+  background-color: #0097cf;
+  cursor: pointer;
 }
