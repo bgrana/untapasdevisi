@@ -1,15 +1,10 @@
 $(function() {
 
   var users = new Bloodhound({
-    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('username'),
     queryTokenizer: Bloodhound.tokenizers.whitespace,
     remote: {
-      url: '../api/search/users?q=%QUERY',
-      filter: function(response) {
-        return $.map(response, function(user) {
-          return { name: user.firstname + " " + user.lastname, username: user.username };
-        });
-      }
+      url: '../api/search/users?q=%QUERY'
     }
   });
 
@@ -40,7 +35,7 @@ $(function() {
     source: users.ttAdapter(),
     templates: {
       header: '<h3 class="section-name">Personas</h3>',
-      suggestion: Handlebars.compile('<a href="/usuarios/{{username}}">{{name}} <span class="slug">({{username}})</span></a>')
+      suggestion: Handlebars.compile('<a href="/usuarios/{{username}}">{{firstname}} {{lastname}} <span class="slug">({{username}})</span></a>')
     }
   },
   {
