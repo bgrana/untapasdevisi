@@ -8,11 +8,11 @@ $(function() {
     }
   });
 
-  var places = new Bloodhound({
+  var locals = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
     queryTokenizer: Bloodhound.tokenizers.whitespace,
     remote: {
-      url: '../api/search/places?q=%QUERY',
+      url: '../api/search/locals?q=%QUERY',
       filter: function(response) {
         return $.map(response, function(place) {
           return { name: place.localname, slug: place.localname};
@@ -22,7 +22,7 @@ $(function() {
   });
 
   users.initialize();
-  places.initialize();
+  locals.initialize();
 
   $('#search-bar').typeahead({
     hint: true,
@@ -39,9 +39,9 @@ $(function() {
     }
   },
   {
-    name: 'places',
+    name: 'locals',
     displayKey: 'name',
-    source: places.ttAdapter(),
+    source: locals.ttAdapter(),
     templates: {
       header: '<h3 class="section-name">Locales</h3>',
       suggestion: Handlebars.compile('<a href="/locales/{{slug}}">{{name}}</a>')

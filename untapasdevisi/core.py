@@ -343,11 +343,11 @@ def get_user_search():
     return users.to_json()
 
 
-@app.route('/api/search/places', methods=['GET'])
-def get_place_search():
+@app.route('/api/search/locals', methods=['GET'])
+def get_local_search():
     q = request.args.get('q')
-    places = Local.search(q, 5)
-    return places.to_json()
+    locals = Local.search(q, 5)
+    return locals.to_json()
 
 
 # ERROR HANDLERS
