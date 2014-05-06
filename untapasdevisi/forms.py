@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from wtforms import Form, TextField, PasswordField, validators
+from wtforms import Form, TextField, PasswordField, validators, TextAreaField
 from flask.ext.login import current_user
 from models import User, Local
 
@@ -106,4 +106,13 @@ class LocalForm(Form):
     ])
     location = TextField('location', [
         validators.Required(message=u'Debes introducir una localización.')
+    ])
+    city = TextField('city', validators=[
+        validators.Optional()
+    ])
+    description = TextAreaField('description', validators=[
+        validators.Optional(),
+        validators.Length(
+            max=240,
+            message=u'La descripción debe ocupar menos de 240 caracteres.')
     ])

@@ -182,13 +182,17 @@ def get_locals():
 def post_locals():
     localname = request.form['localname']
     location = request.form['location']
-    form = LocalForm(localname=localname, location=location)
+    city = request.form['city']
+    description = request.form['description']
+    showname = localname
+    form = LocalForm(localname=localname, location=location, city=city, description=description)
+    localname = localname.replace(' ', '-')
 
     if not form.validate():
         return render_template(
             'locals.html', user=current_user, error=True, form=form)
 
-    Local.create_local(localname, location)
+    Local.create_local(localname, location, city, description, showname)
     return redirect(url_for('get_local_profile', localname=localname))
 
 
