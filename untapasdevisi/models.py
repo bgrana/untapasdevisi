@@ -41,7 +41,9 @@ class User(Document):
 
     @staticmethod
     def search(q, n):
-        return User.objects.filter(Q(firstname__icontains=q) | Q(lastname__icontains=q) | Q(username__icontains=q))
+        return User.objects.filter(
+            Q(firstname__icontains=q) | Q(lastname__icontains=q) |
+            Q(username__icontains=q))
 
     def activate(self):
         self.activated = True
@@ -153,9 +155,9 @@ class Local(Document):
 
     @staticmethod
     def create_local(localname, location, city, description, showname):
-        if city == None:
+        if city is None:
             city = ''
-        if description == None:
+        if description is None:
             description = ''
         local = Local(
             localname=localname, location=location, city=city,

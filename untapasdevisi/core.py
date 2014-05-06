@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import utils
-from bson import json_util
 import datetime
 
 import redis
@@ -9,7 +8,7 @@ import redis
 from babel.dates import format_date, format_timedelta
 
 from flask import Flask, request, render_template, redirect, url_for
-from flask import abort, flash, jsonify
+from flask import abort, flash
 from flask.ext.login import LoginManager, login_user, current_user
 from flask.ext.login import login_required, logout_user
 
@@ -185,7 +184,9 @@ def post_locals():
     city = request.form['city']
     description = request.form['description']
     showname = localname
-    form = LocalForm(localname=localname, location=location, city=city, description=description)
+    form = LocalForm(
+        localname=localname, location=location,
+        city=city, description=description)
     localname = localname.replace(' ', '-')
 
     if not form.validate():
