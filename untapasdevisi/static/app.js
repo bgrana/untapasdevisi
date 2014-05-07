@@ -12,12 +12,7 @@ $(function() {
     datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
     queryTokenizer: Bloodhound.tokenizers.whitespace,
     remote: {
-      url: '../api/search/locals?q=%QUERY',
-      filter: function(response) {
-        return $.map(response, function(place) {
-          return { name: place.localname, slug: place.localname};
-        });
-      }
+      url: '../api/search/locals?q=%QUERY'
     }
   });
 
@@ -44,7 +39,7 @@ $(function() {
     source: locals.ttAdapter(),
     templates: {
       header: '<h3 class="section-name">Locales</h3>',
-      suggestion: Handlebars.compile('<a href="/locales/{{slug}}">{{name}}</a>')
+      suggestion: Handlebars.compile('<a href="/locales/{{localname}}">{{showname}}</a>')
     }
   });
 
