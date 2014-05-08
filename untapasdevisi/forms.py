@@ -72,7 +72,7 @@ class LoginForm(Form):
     username = TextField('username', validators=[
         validators.Length(
             min=1, max=16,
-            message=u'El nombre de usuario debe tener entre 6 y \
+            message=u'El nombre de usuario debe tener entre 1 y \
             16 caracteres.'),
         validators.Required(message=u'Debes introducir un nombre de usuario.'),
     ])
@@ -99,7 +99,7 @@ class LocalForm(Form):
     localname = TextField('localname', validators=[
         validators.Length(
             min=1, max=16,
-            message=u'El nombre del local debe tener entre 6 y \
+            message=u'El nombre del local debe tener entre 1 y \
             16 caracteres.'),
         validators.Required(message=u'Debes introducir un nombre de local.'),
         unique_localname
