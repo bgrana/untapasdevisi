@@ -29,14 +29,14 @@ class RegisterForm(Form):
     firstname = TextField('firstname', validators=[
         validators.Length(
             min=1, max=16,
-            message=u'El nombre debe tener entre 1 y 24 caracteres.'),
+            message=u'El nombre debe tener entre 1 y 16 caracteres.'),
         validators.Required(message=u'Debes introducir un nombre.')
     ])
     lastname = TextField('lastname', validators=[
         validators.Optional(),
         validators.Length(
             max=16,
-            message=u'Los apellidos deben tener como máximo 24 caracteres.')
+            message=u'Los apellidos deben tener como máximo 16 caracteres.')
     ])
     email = TextField('email', validators=[
         validators.Required(message=u'Debes introducir un email.'),
@@ -114,5 +114,5 @@ class LocalForm(Form):
         validators.Optional(),
         validators.Length(
             max=240,
-            message=u'La descripción debe ocupar menos de 240 caracteres.')
+            message=u'La descripción debe ocupar 240 caracteres o menos.')
     ])
