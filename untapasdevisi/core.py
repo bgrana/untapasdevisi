@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import utils
 import datetime
 
 import redis
@@ -12,6 +11,7 @@ from flask import abort, flash
 from flask.ext.login import LoginManager, login_user, current_user
 from flask.ext.login import login_required, logout_user
 
+import support
 from models import User, Friendship, Activity, Local, connect_db
 from forms import ProfileForm, RegisterForm, LoginForm, LocalForm
 
@@ -30,7 +30,7 @@ app.config.update({
     'REDIS_URL': 'localhost'
 })
 
-mailer = utils.Mailer(
+mailer = support.Mailer(
     app.config['MAILGUN_API_USER'],
     app.config['MAILGUN_API_KEY'],
     app.config['HOST']
@@ -235,7 +235,7 @@ def post_register():
 
     user = User.register(form)
 
-    key = utils.generate_key()
+    key = support.generate_key()
     redis.set('activation:key:' + key, user.id)
     # expirar en 24h
     redis.expire('activation:key:' + key, 60*60*24)
@@ -256,7 +256,7 @@ def post_forgot_password():
     username = request.form['username']
     user = User.objects(username=username).first()
     if user:
-        key = utils.generate_key()
+        key = support.generate_key()
         redis.set('reset:key:' + key, user.id)
         # expirar en 24h
         redis.expire('reset:key:' + key, 60*60*24)
@@ -325,7 +325,7 @@ def get_activate():
 @login_required
 def get_resend():
     if not current_user.activated:
-        key = utils.generate_key()
+        key = support.generate_key()
         redis.set('activation:key:' + key, current_user.id)
         # expirar en 24h
         redis.expire('activation:key:' + key, 60*60*24)
