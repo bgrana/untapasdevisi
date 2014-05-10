@@ -328,6 +328,27 @@ def get_resend():
     return redirect(url_for('get_index'))
 
 
+@app.route('/buscar', methods=['GET'])
+@login_required
+def get_search():
+    q = request.args.get('q')
+    if q == None:
+        return render_template('search.html', user=current_user)
+
+    typ = request.args.get('type', 'Users').capitalize()
+    if not typ in ['User', 'Local']:
+        typ = 'Local'
+
+    if typ == 'User':
+        results = User.search(q, 10)
+
+    if typ == 'Local':
+        results = Local.search(q, 10)
+
+    return render_template('results.html', q=q, typ=typ,
+        user=current_user, results=results)
+
+
 # API
 ###############################################################################
 

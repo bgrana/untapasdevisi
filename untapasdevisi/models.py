@@ -37,7 +37,10 @@ class User(Document):
 
     @property
     def screen_name(self):
-        return self.firstname.capitalize()
+        name = self.firstname.capitalize()
+        if self.lastname:
+            name += " " + self.lastname.capitalize()
+        return name
 
     @staticmethod
     def search(q, n):

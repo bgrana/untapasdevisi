@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<div class="row">
+  <div class="col-md-3">
+    <div class="panel panel-default">
+      <ul class="list-group">
+        <li class="list-group-item"><a href="/buscar?q={{q}}&type=Local"><span class="glyphicon glyphicon-glass"></span> Locales</a></li>
+        <li class="list-group-item"><a href="/buscar?q={{q}}&type=User"><span class="glyphicon glyphicon-user"></span> Usuarios</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="col-md-9">
+    {% if not results %}
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <h3>
+            No hemos econtrado ningun
+            {% if typ == 'User'%}
+                usuario
+            {% else %}
+                local
+            {% endif %}
+            que encaje con '{{q}}'
+        </h3>
+      </div>
+    </div>
+    {% else %}
+    <div class="panel panel-default">
+        <ul class="list-group">
+            {% for r in results %}
+            <li class="list-group-item">
+                {% if typ == 'User'%}
+                    {{r.screen_name}} ({{r.username}})
+                {% else %}
+                    {{r.showname}}
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+
+{% endblock %}

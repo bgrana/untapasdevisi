@@ -105,22 +105,17 @@ body {
 
 }
 
-.tt-suggestion a {
-    margin: 0;
-    color: #333;
-}
-
 .tt-suggestion .slug {
     font-size: 14px;
     color: #888;
-}
-
-.tt-suggestion a:hover {
-    text-decoration: none;
 }
 
 .tt-suggestion.tt-cursor {
   color: #fff;
   background-color: #0097cf;
   cursor: pointer;
+}
+
+.tt-suggestion.tt-cursor .slug{
+  color: #fff;
 }

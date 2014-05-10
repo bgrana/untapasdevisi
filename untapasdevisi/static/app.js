@@ -30,7 +30,7 @@ $(function() {
     source: users.ttAdapter(),
     templates: {
       header: '<h3 class="section-name">Personas</h3>',
-      suggestion: Handlebars.compile('<a href="/usuarios/{{username}}">{{firstname}} {{lastname}} <span class="slug">({{username}})</span></a>')
+      suggestion: Handlebars.compile('{{firstname}} {{lastname}} <span class="slug">({{username}})</span></a>')
     }
   },
   {
@@ -39,8 +39,16 @@ $(function() {
     source: locals.ttAdapter(),
     templates: {
       header: '<h3 class="section-name">Locales</h3>',
-      suggestion: Handlebars.compile('<a href="/locales/{{localname}}">{{showname}}</a>')
+      suggestion: Handlebars.compile('{{showname}}')
     }
   });
+
+  $('#search-bar').on('typeahead:selected', function(event, suggestion, dataset) {
+      if (dataset == 'users') {
+          window.location.replace('/usuarios/' + suggestion.username)
+      } else {
+          window.location.replace('/locales/' + suggestion.localname)
+      }
+  })
 
 });
