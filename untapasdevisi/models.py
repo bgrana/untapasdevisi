@@ -59,6 +59,10 @@ class User(Document):
         self.location = form.location.data
         self.save()
 
+    def update_password(self, password):
+        self.password_hash = bcrypt.encrypt(password)
+        self.save()
+
     def has_password(self, password):
         return bcrypt.verify(password, self.password_hash)
 

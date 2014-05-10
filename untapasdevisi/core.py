@@ -30,13 +30,15 @@ app.config.update({
     'REDIS_URL': 'localhost'
 })
 
-postman = support.postman(
+postman = support.Postman(
     app.config['MAILGUN_API_USER'],
     app.config['MAILGUN_API_KEY'],
     app.config['HOST']
 )
 
 redis = redis.from_url(app.config['REDIS_URL'])
+
+vault = support.Valut(redis)
 
 connect_db(app.config['MONGODB_DB_NAME'])
 
@@ -235,11 +237,7 @@ def post_register():
 
     user = User.register(form)
 
-    key = support.generate_key()
-    redis.set('activation:key:' + key, user.id)
-    # expirar en 24h
-    redis.expire('activation:key:' + key, 60*60*24)
-
+    key = vault.put(user.id, 60*60*24)
     postman.send_validation_email(user, key)
 
     login_user(user)
@@ -256,10 +254,7 @@ def post_forgot_password():
     username = request.form['username']
     user = User.objects(username=username).first()
     if user:
-        key = support.generate_key()
-        redis.set('reset:key:' + key, user.id)
-        # expirar en 24h
-        redis.expire('reset:key:' + key, 60*60*24)
+        key = vault.put(user.id, 60*60*24)
         postman.send_reset_password_email(user, key)
     # we say that is correct anyway for not allowing
     # discovery of registered users
@@ -271,7 +266,7 @@ def post_forgot_password():
 @app.route('/resetear-clave', methods=['GET'])
 def get_reset_password():
     key = request.args.get('key')
-    userid = redis.get('reset:key:' + key)
+    userid = vault.get(key)
     if not userid:
         abort(404)
     return render_template('reset_password.html')
@@ -285,14 +280,14 @@ def post_reset_password():
     if not password:
         return render_template('reset_password.html')
 
-    username = redis.get('reset:key:' + key)
-    if not username:
+    userid = vault.get(key)
+    if not userid:
         abort(404)
 
-    user = User.object(username=username)
+    user = User.objects(id=userid).first()
     user.update_password(password)
     user.save()
-    redis.delete('reset:key:' + key)
+    vault.delete(key)
 
     flash(u"Contraseña actualizada correctamente.", 'success')
     return redirect(url_for('get_login'))
@@ -309,14 +304,14 @@ def get_logout():
 def get_activate():
     key = request.args.get('key')
 
-    userid = redis.get('activation:key:' + key)
+    userid = vault.get(key)
     if not userid:
         abort(404)
 
     user = User.objects(id=userid).first()
     user.activate()
     login_user(user)
-    redis.delete('activation:key:' + key)
+    vault.delete(key)
     flash(u"Usuario validado correctamente.", 'success')
     return redirect(url_for('get_index'))
 
@@ -325,11 +320,7 @@ def get_activate():
 @login_required
 def get_resend():
     if not current_user.activated:
-        key = support.generate_key()
-        redis.set('activation:key:' + key, current_user.id)
-        # expirar en 24h
-        redis.expire('activation:key:' + key, 60*60*24)
-
+        key = vault.put(current_user.id, 60*60*24)
         postman.send_validation_email(current_user, key)
         flash(u"Email de confirmación reenviado.", 'success')
     else:

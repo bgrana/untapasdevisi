@@ -5,11 +5,27 @@ import requests
 from flask import render_template
 
 
-def generate_key():
-    return uuid.uuid4().hex
+class Valut():
+    def __init__(self, redis):
+        self.redis = redis
+
+    def put(self, data, ttl=None):
+        key = uuid.uuid4().hex
+        # This implementation is not secure. The key must be handled as
+        # securely as a password. It must be hashed.
+        self.redis.set("valut:%s" % key, data)
+        if ttl:
+            self.redis.expire("valut:%s" % key, ttl)
+        return key
+
+    def get(self, key):
+        return self.redis.get("valut:%s" % key)
+
+    def delete(self, key):
+        self.redis.delete("valut:%s" % key)
 
 
-class Mailer:
+class Postman:
     def __init__(self, api_user, api_key, host):
         self.auth = ("api", api_key)
         self.host = host
