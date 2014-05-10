@@ -30,7 +30,7 @@ app.config.update({
     'REDIS_URL': 'localhost'
 })
 
-mailer = support.Mailer(
+postman = support.postman(
     app.config['MAILGUN_API_USER'],
     app.config['MAILGUN_API_KEY'],
     app.config['HOST']
@@ -240,7 +240,7 @@ def post_register():
     # expirar en 24h
     redis.expire('activation:key:' + key, 60*60*24)
 
-    mailer.send_validation_email(user, key)
+    postman.send_validation_email(user, key)
 
     login_user(user)
     return redirect(url_for('get_index'))
@@ -260,7 +260,7 @@ def post_forgot_password():
         redis.set('reset:key:' + key, user.id)
         # expirar en 24h
         redis.expire('reset:key:' + key, 60*60*24)
-        mailer.send_reset_password_email(user, key)
+        postman.send_reset_password_email(user, key)
     # we say that is correct anyway for not allowing
     # discovery of registered users
     flash(u'Email de recuperacion de contraseña \
@@ -330,7 +330,7 @@ def get_resend():
         # expirar en 24h
         redis.expire('activation:key:' + key, 60*60*24)
 
-        mailer.send_validation_email(current_user, key)
+        postman.send_validation_email(current_user, key)
         flash(u"Email de confirmación reenviado.", 'success')
     else:
         flash(u"Su cuenta ya se encuentra validada.", 'danger')
