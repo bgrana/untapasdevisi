@@ -258,8 +258,8 @@ def post_forgot_password():
         postman.send_reset_password_email(user, key)
     # we say that is correct anyway for not allowing
     # discovery of registered users
-    flash(u'Email de recuperacion de contraseña \
-        enviado correctamente.', 'success')
+    msg = u'Email de recuperacion de contraseña enviado correctamente.'
+    flash(msg, 'success')
     return redirect(url_for('get_login'))
 
 
