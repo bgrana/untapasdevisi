@@ -17,28 +17,28 @@ def unique_localname(form, field):
     if local:
         raise validators.ValidationError(u'El nombre de local ya existe.')
 
+def strip(s):
+    return s.strip()
 
 class RegisterForm(Form):
-    username = TextField('username', default='', validators=[
-        validators.Length(
-            min=1, max=16,
-            message=u'El nombre de usuario debe tener entre 1 y \
-            16 caracteres.'),
-        validators.Required(message=u'Debes introducir un nombre de usuario.'),
-        unique_username
+    username = TextField('username', default='', filters=[strip], validators=[
+            validators.Length(min=1, max=16,
+                message=u'El nombre de usuario debe tener entre 1 y 16 caracteres.'),
+            validators.Required(message=u'Debes introducir un nombre de usuario.'),
+            unique_username
     ])
-    firstname = TextField('firstname', default='', validators=[
+    firstname = TextField('firstname', default='', filters=[strip], validators=[
         validators.Length(
             min=1, max=16,
             message=u'El nombre debe tener entre 1 y 16 caracteres.'),
         validators.Required(message=u'Debes introducir un nombre.')
     ])
-    lastname = TextField('lastname', default='', validators=[
+    lastname = TextField('lastname', default='', filters=[strip], validators=[
             validators.Optional(),
             validators.Length(max=16,
                 message=u'Los apellidos deben tener como máximo 16 caracteres.')
     ])
-    email = TextField('email', default='', validators=[
+    email = TextField('email', default='', filters=[strip], validators=[
         validators.Required(message=u'Debes introducir un email.'),
         validators.Email(message=u'Email no válido.')
     ])
@@ -69,7 +69,7 @@ class ProfileForm(RegisterForm):
 
 
 class LoginForm(Form):
-    username = TextField('username', default='', validators=[
+    username = TextField('username', default='', filters=[strip], validators=[
         validators.Length(
             min=1, max=16,
             message=u'El nombre de usuario debe tener entre 1 y \
@@ -96,21 +96,20 @@ class LoginForm(Form):
 
 
 class LocalForm(Form):
-    name = TextField('name', default='', validators=[
+    name = TextField('name', default='', filters=[strip], validators=[
         validators.Length(
             min=1, max=16,
-            message=u'El nombre del local debe tener entre 1 y \
-            16 caracteres.'),
+            message=u'El nombre del local debe tener entre 1 y 16 caracteres.'),
         validators.Required(message=u'Debes introducir un nombre de local.'),
         unique_localname
     ])
-    address = TextField('address', default='', validators=[
+    address = TextField('address', default='', filters=[strip], validators=[
         validators.Required(message=u'Debes introducir una localización.')
     ])
-    city = TextField('city', default='', validators=[
+    city = TextField('city', default='', filters=[strip], validators=[
         validators.Optional()
     ])
-    description = TextAreaField('description', default='', validators=[
+    description = TextAreaField('description', default='', filters=[strip], validators=[
         validators.Optional(),
         validators.Length(
             max=240,
