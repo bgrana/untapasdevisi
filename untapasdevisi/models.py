@@ -184,4 +184,4 @@ class Local(Document):
 
     @staticmethod
     def search(q, n):
-        return Local.objects(localname__icontains=q).limit(5)
+        return Local.objects(name__icontains=q).limit(5)

@@ -47,7 +47,7 @@ $(function() {
       if (dataset == 'users') {
           window.location.replace('/usuarios/' + suggestion.username)
       } else {
-          window.location.replace('/locales/' + suggestion.localname)
+          window.location.replace('/locales/' + suggestion.slug)
       }
   })
 
