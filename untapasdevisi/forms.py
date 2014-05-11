@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import re
 from wtforms import Form, TextField, PasswordField, validators, TextAreaField
 from flask.ext.login import current_user
 from models import User, Local
 
+USERNAME_RE = r"^\w+$"
 
 def unique_username(form, field):
     user = User.objects(username=field.data).first()
@@ -20,10 +22,18 @@ def unique_localname(form, field):
 def strip(s):
     return s.strip()
 
+
 class RegisterForm(Form):
     username = TextField('username', default='', filters=[strip], validators=[
-            validators.Length(min=1, max=16,
-                message=u'El nombre de usuario debe tener entre 1 y 16 caracteres.'),
+            validators.Length(
+                min=1,
+                max=16,
+                message=u'El nombre de usuario debe tener entre 1 y 16 caracteres.'
+            ),
+            validators.Regexp(
+                USERNAME_RE,
+                message=u"El nombre de usuario contiene caracteres inválidos"
+            ),
             validators.Required(message=u'Debes introducir un nombre de usuario.'),
             unique_username
     ])
@@ -35,8 +45,10 @@ class RegisterForm(Form):
     ])
     lastname = TextField('lastname', default='', filters=[strip], validators=[
             validators.Optional(),
-            validators.Length(max=16,
-                message=u'Los apellidos deben tener como máximo 16 caracteres.')
+            validators.Length(
+                max=16,
+                message=u'Los apellidos deben tener como máximo 16 caracteres.'
+            )
     ])
     email = TextField('email', default='', filters=[strip], validators=[
         validators.Required(message=u'Debes introducir un email.'),
@@ -45,8 +57,10 @@ class RegisterForm(Form):
     password = PasswordField('password', default='', validators=[
         validators.Required(message=u'Debes introducir una contraseña.'),
         validators.Length(
-            min=6, max=64,
-            message=u'La contraseña debe tener entre 6 y 64 caracteres.'),
+            min=6,
+            max=64,
+            message=u'La contraseña debe tener entre 6 y 64 caracteres.'
+        ),
         validators.EqualTo('confirm', message=u'Las contraseñas no coinciden.')
     ])
     confirm = PasswordField('confirm')
@@ -56,8 +70,10 @@ class ProfileForm(RegisterForm):
     password = PasswordField('password', default='', validators=[
         validators.Optional(),
         validators.Length(
-            min=6, max=64,
-            message=u'La contraseña debe tener entre 6 y 64 caracteres.'),
+            min=6,
+            max=64,
+            message=u'La contraseña debe tener entre 6 y 64 caracteres.'
+        ),
         validators.EqualTo('confirm', message=u'Las contraseñas no coinciden.')
     ])
     location = TextField('location', default='', validators=[
@@ -71,9 +87,10 @@ class ProfileForm(RegisterForm):
 class LoginForm(Form):
     username = TextField('username', default='', filters=[strip], validators=[
         validators.Length(
-            min=1, max=16,
-            message=u'El nombre de usuario debe tener entre 1 y \
-            16 caracteres.'),
+            min=1,
+            max=16,
+            message=u'El nombre de usuario debe tener entre 1 y 16 caracteres.'
+        ),
         validators.Required(message=u'Debes introducir un nombre de usuario.'),
     ])
     password = PasswordField('password', [
@@ -98,8 +115,10 @@ class LoginForm(Form):
 class LocalForm(Form):
     name = TextField('name', default='', filters=[strip], validators=[
         validators.Length(
-            min=1, max=16,
-            message=u'El nombre del local debe tener entre 1 y 16 caracteres.'),
+            min=1,
+            max=16,
+            message=u'El nombre del local debe tener entre 1 y 16 caracteres.'
+        ),
         validators.Required(message=u'Debes introducir un nombre de local.'),
         unique_localname
     ])
