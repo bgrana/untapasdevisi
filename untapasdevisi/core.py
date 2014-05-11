@@ -77,7 +77,9 @@ def ago_filter(date):
 @login_required
 def get_index():
     friends = Friendship.get_confirmed_from_user(current_user)
-    return render_template('index.html', user=current_user, friends=friends)
+    activities = Activity.objects(creator=current_user.id).order_by('-created').limit(10)
+    return render_template('index.html', user=current_user,
+        friends=friends, activities=activities)
 
 
 @app.route('/configuracion', methods=['GET'])
@@ -108,8 +110,8 @@ def post_settings():
 @login_required
 def get_friend_requests():
     requests = Friendship.get_unconfirmed_from_friend(current_user)
-    return render_template(
-        'friend_requests.html', user=current_user, requests=requests)
+    return render_template('friend_requests.html',
+        user=current_user, requests=requests)
 
 
 @app.route('/solicitudes/<id>', methods=['POST'])
@@ -129,7 +131,7 @@ def get_profile(username):
     if not visited_user:
         abort(404)
     friendship = Friendship.get_from_users([current_user, visited_user])
-    activities = Activity.objects(creator=visited_user).order_by('-created')
+    activities = Activity.objects(creator=visited_user).order_by('-created').limit(10)
     return render_template(
         'profile.html', user=current_user, visited_user=visited_user,
         activities=activities, friendship=friendship)
@@ -354,7 +356,7 @@ def get_search():
 
 
 @app.route('/api/search/users', methods=['GET'])
-def get_user_search():
+def postman_search():
     q = request.args.get('q')
     users = User.search(q, 5)
     return users.to_json()

@@ -1,0 +1,25 @@
+<div class="panel panel-default">
+    <div class="panel-heading">Actividades</div>
+    {% if activities %}
+        <ul class="list-group">
+        {% for activity in activities %}
+            <li class="list-group-item">
+                {% if activity._cls == 'Activity.FriendshipActivity' %}
+                    <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
+                        {{ activity.creator.screen_name }}
+                    </a> y
+                    <a href="{{ url_for('get_profile', username=activity.friend.username)}}">
+                        {{ activity.friend.screen_name }}
+                    </a>
+                    son ahora amigos. {{ activity.created | ago }}
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+    <div class="panel-body">
+        No hay actividad reciente
+    </div>
+    {% endif %}
+</div>
