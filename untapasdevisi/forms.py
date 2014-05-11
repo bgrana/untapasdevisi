@@ -103,11 +103,8 @@ class LocalForm(Form):
         validators.Required(message=u'Debes introducir un nombre de local.'),
         unique_localname
     ])
-    address = TextField('address', default='', filters=[strip], validators=[
+    location = TextField('address', default='', filters=[strip], validators=[
         validators.Required(message=u'Debes introducir una localización.')
-    ])
-    city = TextField('city', default='', filters=[strip], validators=[
-        validators.Optional()
     ])
     description = TextAreaField('description', default='', filters=[strip], validators=[
         validators.Optional(),

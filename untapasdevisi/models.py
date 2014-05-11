@@ -155,20 +155,18 @@ class FriendshipActivity(Activity):
 class Local(Document):
     name = StringField(required=True, unique=True)
     slug = StringField(required=True, unique=True)
-    address = StringField(required=True)
-    city = StringField()
+    location = StringField(required=True)
     description = StringField()
     created = DateTimeField(default=datetime.datetime.now)
 
     @staticmethod
-    def create_local(name, address, city, description):
+    def create_local(name, location, description=""):
         name = name
         slug = Local.slugify(name)
         local = Local(
             name=name,
             slug=slug,
-            address=address,
-            city=city,
+            location=location,
             description=description
         )
         local.save()

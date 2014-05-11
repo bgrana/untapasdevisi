@@ -190,8 +190,7 @@ def post_locals():
 
     local = Local.create_local(
         name=form.name.data,
-        address=form.address.data,
-        city=form.city.data,
+        location=form.location.data,
         description=form.description.data
     )
     return redirect(url_for('get_local_profile', slug=local.slug))

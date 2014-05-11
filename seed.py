@@ -11,5 +11,16 @@ users = [
 ]
 
 locals = [
-    models.Local.create_local("barpaco", "Madrid")
+    models.Local.create_local(
+        name="Bar Paco",
+        location="Madrid"
+    ),
+    models.Local.create_local(
+        name="Bar Pepe",
+        location="Madrid"
+    ),
+    models.Local.create_local(
+        name="Restaurante Chino Gran Sol",
+        location="Madrid"
+    )
 ]
