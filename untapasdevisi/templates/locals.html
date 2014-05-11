@@ -1,34 +1,22 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<h1>Registrar un nuevo local</h1>
 <form role="form" method="POST">
-  <div class="panel panel-default">
+  <div class="panel panel-default center">
+    <div class="panel-heading">Registrar local</div>
     <div class="panel-body">
       <div class="form-group {% if form.name.errors %}has-error has-feedback{% endif %}">
-        <label for="name">Nombre*</label>
         <input type="text" class="form-control" id="name" name="name" placeholder="Nombre del local" value="{{ form.name.data }}" />
-        {% if form.name.errors %}
-        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
-        {% endif %}
       </div>
       <div class="form-group {% if form.location.errors %}has-error has-feedback{% endif %}">
-        <label for="location">Dirección*</label>
         <input type="text" class="form-control" id="location" name="location" placeholder="Dirección del local" value="{{ form.location.data }}" />
-        {% if form.location.errors %}
-        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
-        {% endif %}
       </div>
       <div class="form-group {% if form.description.errors %}has-error has-feedback{% endif %}">
-        <label for="description">Breve descripción</label>
-        <textarea class="form-control" id="description" name="description" maxlength="240" placeholder="Breve descripción del local..." rows="7"></textarea>
-        {% if form.description.errors %}
-        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
-        {% endif %}
+        <textarea class="form-control" id="description" name="description" maxlength="240" placeholder="Breve descripción del local (opcional)" rows="7"></textarea>
       </div>
       {% if form.errors %}
-      <div class="alert alert-danger alert-dismissable">
-        Errores:
+      <div class="form-error">
+        <span class="glyphicon glyphicon-remove"></span>
         {% for error, messages in form.errors.iteritems() %}
           {% for message in messages %}
             {{ message }}
@@ -38,7 +26,8 @@
       {% endif %}
     </div>
     <div class="panel-footer">
-      <button type="submit" class="btn btn-default">Crear local</button>
+      <button type="submit" class="btn btn-primary pull-right">Crear local</button>
+      <div class="clearfix"></div>
     </div>
   </div>
 </form>

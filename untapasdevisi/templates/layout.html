@@ -17,12 +17,12 @@
         <div class="navbar-header">
           <a class="navbar-brand" href="/">UntapasDevisi</a>
         </div>
-
+        {% if user %}
         <ul class="nav navbar-nav">
           <li><a href="{{ url_for('get_locals') }}">Registrar local</a></li>
         </ul>
 
-        {% if user %}
+
         <div class="col-sm-5 col-md-5">
           <form class="navbar-form" id="search" role="search" method="GET" action="/buscar">
               <div class="input-group search-container">
@@ -40,7 +40,7 @@
             </a>
             <ul class="dropdown-menu">
               <li><a href="{{ url_for('get_profile', username=user.username) }}">Perfil  público</a></li>
-              <li><a href="{{ url_for('get_settings') }}">Configuración</a></li>
+              <li><a href="{{ url_for('get_settings') }}">Editar perfil</a></li>
               <li class="divider"></li>
               <li><a href="{{ url_for('get_logout') }}">Salir</a></li>
             </ul>
@@ -56,22 +56,28 @@
       </div>
     </nav>
 
-    <div class="container">
-      {% for category, message in get_flashed_messages(with_categories=true) %}
-      <div class="alert alert-{{ category }} alert-dismissable">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        {{ message }}
-      </div>
-      {% endfor %}
 
       {% if user and not user.activated %}
-        <div class="alert alert-warning">
-          <p>Su cuenta de email aun no ha sido validada. <a href="{{ url_for('get_resend') }}">¿Reenviar email?</a></p>
+        <div class="alert alert-warning toplevel-alert">
+            <div class="container">
+                <span class="message">
+                    Su cuenta de email aun no ha sido validada. <a href="{{ url_for('get_resend') }}">¿Reenviar email?</a>
+                </span>
+            </div>
         </div>
       {% endif %}
 
-      {% block body %}{% endblock %}
+      {% for category, message in get_flashed_messages(with_categories=true) %}
+      <div class="alert alert-{{ category }} toplevel-alert">
+          <div class="container">
+              <span class="message">{{ message }}</span>
+          </div>
+      </div>
+      {% endfor %}
 
-    </div>
+
+      <div class="container">
+          {% block body %}{% endblock %}
+      </div>
   </body>
 </html>

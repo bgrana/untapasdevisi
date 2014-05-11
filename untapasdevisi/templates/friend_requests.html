@@ -1,15 +1,16 @@
 {% extends "layout.html" %}
 
 {% block body %}
-  <div class="panel panel-default">
+  <div class="panel panel-default center">
+    <div class="panel-heading">Solicitudes de amistad</div>
     <ul class="list-group">
       {% if requests %}
         {% for request in requests %}
-        <li class="list-group-item">
+        <li class="list-group-item friend-request">
           <a href="{{ url_for('get_profile', username=request.creator.username) }}">
             {{ request.creator.screen_name }}
           </a>
-          quiere ser tu amigo. Recibido hace {{request.created | ago}}.
+          quiere ser tu amigo · <span class="ago">hace {{request.created | ago}}</span>
           <form method="POST" action="{{url_for('post_accept_request', id=request.id)}}"class="pull-right">
             <button type="submit" class="btn btn-default btn-xs">Aceptar</button>
           </form>

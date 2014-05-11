@@ -5,6 +5,7 @@
 <div class="row">
   <div class="col-md-3">
     <div class="panel panel-default">
+      <div class="panel-heading">Elementos</div>
       <ul class="list-group">
         <li class="list-group-item"><a href="/buscar?q={{q}}&type=Local"><span class="glyphicon glyphicon-glass"></span> Locales</a></li>
         <li class="list-group-item"><a href="/buscar?q={{q}}&type=User"><span class="glyphicon glyphicon-user"></span> Usuarios</a></li>
@@ -12,35 +13,32 @@
     </div>
   </div>
   <div class="col-md-9">
-    {% if not results %}
     <div class="panel panel-default">
-      <div class="panel-body">
-        <h3>
-            No hemos econtrado ningun
-            {% if typ == 'User'%}
-                usuario
-            {% else %}
-                local
-            {% endif %}
-            que encaje con '{{q}}'
-        </h3>
-      </div>
-    </div>
-    {% else %}
-    <div class="panel panel-default">
-        <ul class="list-group">
+      <div class="panel-heading">Resultados</div>
+      <ul class="list-group">
+          {% if not results %}
+              <li class="list-group-item">
+                  No hemos econtrado ningun
+                  {% if typ == 'User'%}
+                  usuario
+                  {% else %}
+                  local
+                  {% endif %}
+                  que encaje con '{{q}}'
+              </li>
+          {% else %}
             {% for r in results %}
             <li class="list-group-item">
                 {% if typ == 'User'%}
-                    {{r.screen_name}} ({{r.username}})
+                    <a href="{{ url_for('get_profile', username=r.username) }}">{{r.screen_name}} ({{r.username}})</a>
                 {% else %}
-                    {{r.showname}}
+                    <a href="{{ url_for('get_local_profile', slug=r.slug) }}">{{r.name}}</a>
                 {% endif %}
             </li>
             {% endfor %}
-        </ul>
+          {% endif %}
+      </ul>
     </div>
-    {% endif %}
   </div>
 </div>
 

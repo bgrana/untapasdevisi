@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<nav class="navbar navbar-default" role="navigation">
+<nav class="navbar navbar-default profilebar" role="navigation">
   <div class="navbar-header">
     <a class="navbar-brand" href="{{ url_for('get_profile', username=visited_user.username) }}">
-      {{ visited_user.screen_name }}
+      {{ visited_user.screen_name }} <span class="slug">({{visited_user.username}})</span>
     </a>
   </div>
   <div class="collapse navbar-collapse">

@@ -3,7 +3,7 @@
     {% if activities %}
         <ul class="list-group">
         {% for activity in activities %}
-            <li class="list-group-item">
+            <li class="list-group-item activity">
                 {% if activity._cls == 'Activity.FriendshipActivity' %}
                     <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
                         {{ activity.creator.screen_name }}
@@ -11,15 +11,16 @@
                     <a href="{{ url_for('get_profile', username=activity.friend.username)}}">
                         {{ activity.friend.screen_name }}
                     </a>
-                    son ahora amigos. Hace {{ activity.created | ago }}
+                    son ahora amigos.
                 {% elif activity._cls == 'Activity.LikeActivity' %}
                     A <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
                         {{ activity.creator.screen_name }}
                     </a> le gusta
                     <a href="{{ url_for('get_local_profile', slug=activity.local.slug)}}">
                         {{ activity.local.name }}
-                    </a>. Hace {{ activity.created | ago }}
+                    </a>
                 {% endif %}
+                <span class="ago">· Hace {{ activity.created | ago }}</span>
             </li>
         {% endfor %}
         </ul>

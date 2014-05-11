@@ -5,7 +5,7 @@
   <div class="col-md-3">
     <div class="panel panel-default">
     {% if friends %}
-      <div class="panel-heading">Amigos ({{ friends | length }})</div>
+      <div class="panel-heading">Amigos · {{ friends | length }}</div>
       <ul class="list-group">
         {% for friend in friends %}
         <li class="list-group-item">
