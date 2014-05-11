@@ -19,7 +19,7 @@ def unique_localname(form, field):
 
 
 class RegisterForm(Form):
-    username = TextField('username', validators=[
+    username = TextField('username', default='', validators=[
         validators.Length(
             min=1, max=16,
             message=u'El nombre de usuario debe tener entre 1 y \
@@ -27,23 +27,22 @@ class RegisterForm(Form):
         validators.Required(message=u'Debes introducir un nombre de usuario.'),
         unique_username
     ])
-    firstname = TextField('firstname', validators=[
+    firstname = TextField('firstname', default='', validators=[
         validators.Length(
             min=1, max=16,
             message=u'El nombre debe tener entre 1 y 16 caracteres.'),
         validators.Required(message=u'Debes introducir un nombre.')
     ])
-    lastname = TextField('lastname', validators=[
-        validators.Optional(),
-        validators.Length(
-            max=16,
-            message=u'Los apellidos deben tener como máximo 16 caracteres.')
+    lastname = TextField('lastname', default='', validators=[
+            validators.Optional(),
+            validators.Length(max=16,
+                message=u'Los apellidos deben tener como máximo 16 caracteres.')
     ])
-    email = TextField('email', validators=[
+    email = TextField('email', default='', validators=[
         validators.Required(message=u'Debes introducir un email.'),
         validators.Email(message=u'Email no válido.')
     ])
-    password = PasswordField('password', [
+    password = PasswordField('password', default='', validators=[
         validators.Required(message=u'Debes introducir una contraseña.'),
         validators.Length(
             min=6, max=64,
@@ -54,14 +53,14 @@ class RegisterForm(Form):
 
 
 class ProfileForm(RegisterForm):
-    password = PasswordField('password', [
+    password = PasswordField('password', default='', validators=[
         validators.Optional(),
         validators.Length(
             min=6, max=64,
             message=u'La contraseña debe tener entre 6 y 64 caracteres.'),
         validators.EqualTo('confirm', message=u'Las contraseñas no coinciden.')
     ])
-    location = TextField('location', validators=[
+    location = TextField('location', default='', validators=[
         validators.Optional(),
         validators.Length(
             min=6, max=16,
@@ -70,7 +69,7 @@ class ProfileForm(RegisterForm):
 
 
 class LoginForm(Form):
-    username = TextField('username', validators=[
+    username = TextField('username', default='', validators=[
         validators.Length(
             min=1, max=16,
             message=u'El nombre de usuario debe tener entre 1 y \
@@ -97,7 +96,7 @@ class LoginForm(Form):
 
 
 class LocalForm(Form):
-    name = TextField('name', validators=[
+    name = TextField('name', default='', validators=[
         validators.Length(
             min=1, max=16,
             message=u'El nombre del local debe tener entre 1 y \
@@ -105,13 +104,13 @@ class LocalForm(Form):
         validators.Required(message=u'Debes introducir un nombre de local.'),
         unique_localname
     ])
-    address = TextField('address', [
+    address = TextField('address', default='', validators=[
         validators.Required(message=u'Debes introducir una localización.')
     ])
-    city = TextField('city', validators=[
+    city = TextField('city', default='', validators=[
         validators.Optional()
     ])
-    description = TextAreaField('description', validators=[
+    description = TextAreaField('description', default='', validators=[
         validators.Optional(),
         validators.Length(
             max=240,

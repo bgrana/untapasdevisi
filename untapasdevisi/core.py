@@ -85,14 +85,13 @@ def get_index():
 @app.route('/configuracion', methods=['GET'])
 @login_required
 def get_settings():
-    data = {
-        "username": current_user.username,
-        "email": current_user.email,
-        "firstname": current_user.firstname,
-        "lastname": current_user.lastname,
-        "location": current_user.location
-    }
-    form = ProfileForm(**data)
+    form = ProfileForm(
+        username=current_user.username,
+        email=current_user.email,
+        firstname=current_user.firstname,
+        lastname=current_user.lastname,
+        location=current_user.location
+    )
     return render_template('settings.html', user=current_user, form=form)
 
 
@@ -200,7 +199,7 @@ def post_locals():
 
 @app.route('/entrar', methods=['GET'])
 def get_login():
-    form = LoginForm(username='', password='')
+    form = LoginForm()
     return render_template('login.html', form=form)
 
 
@@ -221,9 +220,7 @@ def post_login():
 
 @app.route('/registrarse', methods=['GET'])
 def get_register():
-    form = RegisterForm(
-        username='', firstname='', lastname='',
-        password='', email='', confirm='')
+    form = RegisterForm()
     return render_template('register.html', form=form)
 
 
