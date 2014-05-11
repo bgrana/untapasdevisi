@@ -3,8 +3,8 @@
 {% block body %}
 <div class="row">
   <div class="col-md-3">
-    {% if friends %}
     <div class="panel panel-default">
+    {% if friends %}
       <div class="panel-heading">Amigos ({{ friends | length }})</div>
       <ul class="list-group">
         {% for friend in friends %}
@@ -14,8 +14,11 @@
           </a>
         </li>
         {% endfor %}
-    </div>
+    {% else %}
+        <div class="panel-heading">Amigos</div>
+        <div class="panel-body">Aun no tienes ningún amigo</div>
     {% endif %}
+    </div>
   </div>
   <div class="col-md-9">
       {% include 'activities_panel.html' %}
