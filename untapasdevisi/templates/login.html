@@ -1,29 +1,19 @@
 {% extends "layout.html" %}
 
 {% block body %}
- <h1>Entrar</h1>
  <form role="form" method="POST">
-  <div class="panel panel-default">
+  <div class="panel panel-default center">
+    <div class="panel-heading">Entrar</div>
     <div class="panel-body">
       <div class="form-group {% if form.username.errors %}has-error has-feedback{% endif %}">
-        <label for="username">Nombre de usuario</label>
         <input type="text" class="form-control" id="username" name="username" placeholder="Nombre de usuario" value="{{ form.username.data }}">
-        {% if form.username.errors %}
-        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
-        {% endif %}
       </div>
       <div class="form-group {% if form.password.errors %}has-error has-feedback{% endif %}">
-        <label for="password">Contraseña</label>
         <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña">
-        {% if form.password.errors %}
-        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
-        {% endif %}
-        <p class="help-block"><a href="{{ url_for('get_forgot_password') }}">¿Olvidastes la contraseña?</a></p>
       </div>
-
       {% if form.errors %}
-      <div class="alert alert-danger alert-dismissable">
-        Errores:
+      <div class="form-error">
+        <span class="glyphicon glyphicon-remove"></span>
         {% for error, messages in form.errors.iteritems() %}
           {% for message in messages %}
             {{ message }}
@@ -31,13 +21,15 @@
         {% endfor %}
       </div>
       {% elif error %}
-      <div class="alert alert-danger alert-dismissable">
-        Errores: Nombre de usuario y/o contraseña incorrecto.
+      <div class="form-error">
+        <span class="glyphicon glyphicon-remove"></span> Nombre de usuario y/o contraseña incorrecto.
       </div>
       {% endif %}
     </div>
     <div class="panel-footer">
-      <button type="submit" class="btn btn-default">Entrar</button>
+        <a href="{{ url_for('get_forgot_password') }}">¿Has olvidado tu contraseña?</a>
+        <button type="submit" class="btn btn-primary pull-right">Entrar</button>
+        <div class="clearfix"></div>
     </div>
   </div>
 </form>
