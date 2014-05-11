@@ -51,4 +51,11 @@ $(function() {
       }
   })
 
+  // subtmit on enter
+  $('#search-bar').keypress(function (e) {
+      if (e.which == 13) {
+          $('#search').submit();
+      }
+  });
+
 });

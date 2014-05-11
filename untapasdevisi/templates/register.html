@@ -7,44 +7,26 @@
     <div class="panel-body">
       <div class="form-group {% if form.username.errors %}has-error has-feedback{% endif %}">
         <input type="text" class="form-control" id="username" name="username" placeholder="Nombre de usuario" value="{{ form.username.data }}">
-        {% if form.username.errors %}
-        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
-        {% endif %}
       </div>
       <div class="form-group {% if form.firstname.errors %}has-error has-feedback{% endif %}">
         <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Nombre" value="{{ form.firstname.data }}">
-        {% if form.firstname.errors %}
-        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
-        {% endif %}
       </div>
       <div class="form-group {% if form.lastname.errors %}has-error has-feedback{% endif %}">
         <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Apellidos (opcional)" value="{{ form.lastname.data }}">
-        {% if form.lastname.errors %}
-        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
-        {% endif %}
       </div>
       <div class="form-group {% if form.email.errors %}has-error has-feedback{% endif %}">
         <input type="text" class="form-control" id="email" name="email" placeholder="Email" value="{{ form.email.data }}">
-        {% if form.email.errors %}
-        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
-        {% endif %}
       </div>
       <div class="form-group {% if form.password.errors %}has-error has-feedback{% endif %}">
         <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña">
-        {% if form.password.errors %}
-        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
-        {% endif %}
       </div>
       <div class="form-group {% if form.password.errors %}has-error has-feedback{% endif %}">
         <input type="password" class="form-control" id="confirm" name="confirm" placeholder="Confirma la contraseña">
-        {% if form.password.errors %}
-        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
-        {% endif %}
       </div>
 
       {% if form.errors %}
-      <div class="alert alert-danger alert-dismissable">
-        Errores:
+      <div class="form-error">
+        <span class="glyphicon glyphicon-remove"></span>
         {% for error, messages in form.errors.iteritems() %}
           {% for message in messages %}
             {{ message }}
