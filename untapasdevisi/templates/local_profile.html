@@ -37,9 +37,26 @@
   <div class="col-md-9">
     <div class="panel panel-default">
       <div class="panel-heading">Actividades</div>
-      <div class="panel-body">
+        {% if activities %}
+        <ul class="list-group">
+        {% for activity in activities %}
+            <li class="list-group-item activity">
+                A <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
+                    {{ activity.creator.screen_name }}
+                </a> le gusta
+                <a href="{{ url_for('get_local_profile', slug=activity.local.slug)}}">
+                    {{ activity.local.name }}
+                </a>
+                <span class="ago">· Hace {{ activity.created | ago }}</span>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+    <div class="panel-body">
         No hay actividad reciente
-      </div>
+    </div>
+    {% endif %}
     </div>
   </div>
 </div>

@@ -12,7 +12,7 @@ from flask.ext.login import LoginManager, login_user, current_user
 from flask.ext.login import login_required, logout_user
 
 import support
-from models import User, Friendship, Activity, Local, Like, connect_db
+from models import User, Friendship, Activity, Local, Like, LikeActivity, connect_db
 from forms import ProfileForm, RegisterForm, LoginForm, LocalForm
 
 # Setup
@@ -194,8 +194,9 @@ def get_local_profile(slug):
     if not local:
         abort(404)
     like = Like.get_by_local_and_user(local, current_user)
+    activities = LikeActivity.objects(local=local.id).order_by('-created').limit(10)
     return render_template('local_profile.html',
-        user=current_user, local=local, like=like)
+        user=current_user, local=local, like=like, activities=activities)
 
 
 @app.route('/locales/<slug>/megusta', methods=['POST'])
