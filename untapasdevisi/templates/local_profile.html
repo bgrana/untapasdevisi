@@ -3,7 +3,7 @@
 {% block body %}
 <nav class="navbar navbar-default" role="navigation">
   <div class="navbar-header">
-    <a class="navbar-brand" href="#">{{ local.showname }}</a>
+    <a class="navbar-brand" href="#">{{ local.name }}</a>
   </div>
 </nav>
 
@@ -13,8 +13,8 @@
       <div class="panel-heading">Información</div>
       <ul class="list-group">
         <li class="list-group-item"><span class="glyphicon glyphicon-time"></span>  {{ local.created | date }}</li>
-        {% if local.location %}
-        <li class="list-group-item"><span class="glyphicon glyphicon-map-marker"></span>  {{ local.location }}</li>
+        {% if local.address %}
+        <li class="list-group-item"><span class="glyphicon glyphicon-map-marker"></span>  {{ local.address }}</li>
         {% endif %}
         {% if local.city %}
         <li class="list-group-item"><span class="glyphicon glyphicon-globe"></span>  {{ local.city }}</li>

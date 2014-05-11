@@ -153,28 +153,34 @@ class FriendshipActivity(Activity):
 
 
 class Local(Document):
-    localname = StringField(required=True, unique=True)
-    location = StringField(required=True)
+    name = StringField(required=True, unique=True)
+    slug = StringField(required=True, unique=True)
+    address = StringField(required=True)
     city = StringField()
     description = StringField()
-    showname = StringField(required=True)
     created = DateTimeField(default=datetime.datetime.now)
 
     @staticmethod
-    def create_local(localname, location, city, description, showname):
-        if city is None:
-            city = ''
-        if description is None:
-            description = ''
+    def create_local(name, address, city, description):
+        name = name
+        slug = Local.slugify(name)
         local = Local(
-            localname=localname, location=location, city=city,
-            description=description, showname=showname)
+            name=name,
+            slug=slug,
+            address=address,
+            city=city,
+            description=description
+        )
         local.save()
         return local
 
     @staticmethod
-    def get_by_localname(localname):
-        return Local.objects(localname=localname).first()
+    def get_by_slug(slug):
+        return Local.objects(slug=slug).first()
+
+    @staticmethod
+    def slugify(name):
+        return name.strip().lower().replace(' ', '-')
 
     @staticmethod
     def search(q, n):

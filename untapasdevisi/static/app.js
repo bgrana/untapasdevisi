@@ -39,7 +39,7 @@ $(function() {
     source: locals.ttAdapter(),
     templates: {
       header: '<h3 class="section-name">Locales</h3>',
-      suggestion: Handlebars.compile('{{showname}}')
+      suggestion: Handlebars.compile('{{name}}')
     }
   });
 

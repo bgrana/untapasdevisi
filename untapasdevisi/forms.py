@@ -12,7 +12,8 @@ def unique_username(form, field):
 
 
 def unique_localname(form, field):
-    local = Local.get_by_localname(field.data)
+    slug = Local.slugify(field.data)
+    local = Local.get_by_slug(slug)
     if local:
         raise validators.ValidationError(u'El nombre de local ya existe.')
 
@@ -96,7 +97,7 @@ class LoginForm(Form):
 
 
 class LocalForm(Form):
-    localname = TextField('localname', validators=[
+    name = TextField('name', validators=[
         validators.Length(
             min=1, max=16,
             message=u'El nombre del local debe tener entre 1 y \
@@ -104,7 +105,7 @@ class LocalForm(Form):
         validators.Required(message=u'Debes introducir un nombre de local.'),
         unique_localname
     ])
-    location = TextField('location', [
+    address = TextField('address', [
         validators.Required(message=u'Debes introducir una localización.')
     ])
     city = TextField('city', validators=[

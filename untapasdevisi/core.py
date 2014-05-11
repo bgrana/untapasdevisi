@@ -163,10 +163,10 @@ def post_remove_friend(username):
     return redirect(url_for('get_profile', username=user.username))
 
 
-@app.route('/locales/<localname>', methods=['GET'])
+@app.route('/locales/<slug>', methods=['GET'])
 @login_required
-def get_local_profile(localname):
-    local = Local.get_by_localname(localname)
+def get_local_profile(slug):
+    local = Local.get_by_slug(slug)
     if not local:
         abort(404)
     return render_template(
@@ -176,29 +176,26 @@ def get_local_profile(localname):
 @app.route('/locales', methods=['GET'])
 @login_required
 def get_locals():
-    form = LocalForm(localname='', location='')
+    form = LocalForm(name='', adrress='')
     return render_template('locals.html', user=current_user, form=form)
 
 
 @app.route('/locales', methods=['POST'])
 @login_required
 def post_locals():
-    localname = request.form['localname']
-    location = request.form['location']
-    city = request.form['city']
-    description = request.form['description']
-    showname = localname
-    form = LocalForm(
-        localname=localname, location=location,
-        city=city, description=description)
-    localname = localname.replace(' ', '-')
+    form = LocalForm(request.form)
 
     if not form.validate():
         return render_template(
             'locals.html', user=current_user, error=True, form=form)
 
-    Local.create_local(localname, location, city, description, showname)
-    return redirect(url_for('get_local_profile', localname=localname))
+    local = Local.create_local(
+        name=form.name.data,
+        address=form.address.data,
+        city=form.city.data,
+        description=form.description.data
+    )
+    return redirect(url_for('get_local_profile', slug=local.slug))
 
 
 @app.route('/entrar', methods=['GET'])

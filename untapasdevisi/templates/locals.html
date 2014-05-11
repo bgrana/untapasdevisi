@@ -5,17 +5,17 @@
 <form role="form" method="POST">
   <div class="panel panel-default">
     <div class="panel-body">
-      <div class="form-group {% if form.localname.errors %}has-error has-feedback{% endif %}">
-        <label for="localname">Nombre*</label>
-        <input type="text" class="form-control" id="localname" name="localname" placeholder="Nombre del local" value="{{ form.localname.data }}" />
-        {% if form.localname.errors %}
+      <div class="form-group {% if form.name.errors %}has-error has-feedback{% endif %}">
+        <label for="name">Nombre*</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="Nombre del local" value="{{ form.name.data }}" />
+        {% if form.name.errors %}
         <span class="glyphicon glyphicon-remove form-control-feedback"></span>
         {% endif %}
       </div>
-      <div class="form-group {% if form.location.errors %}has-error has-feedback{% endif %}">
-        <label for="location">Direccion*</label>
-        <input type="text" class="form-control" id="location" name="location" placeholder="Dirección del local" value="{{ form.location.data }}" />
-        {% if form.location.errors %}
+      <div class="form-group {% if form.address.errors %}has-error has-feedback{% endif %}">
+        <label for="address">Direccion*</label>
+        <input type="text" class="form-control" id="address" name="address" placeholder="Dirección del local" value="{{ form.address.data }}" />
+        {% if form.address.errors %}
         <span class="glyphicon glyphicon-remove form-control-feedback"></span>
         {% endif %}
       </div>
