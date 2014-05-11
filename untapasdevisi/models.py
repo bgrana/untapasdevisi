@@ -152,6 +152,16 @@ class FriendshipActivity(Activity):
     friend = ReferenceField('User')
 
 
+class LikeActivity(Activity):
+    local = ReferenceField('Local')
+
+    @staticmethod
+    def create(local, user):
+        activity = LikeActivity(creator=user.id, local=local.id)
+        activity.save()
+        return activity
+
+
 class Local(Document):
     name = StringField(required=True, unique=True)
     slug = StringField(required=True, unique=True)
@@ -183,3 +193,20 @@ class Local(Document):
     @staticmethod
     def search(q, n):
         return Local.objects(name__icontains=q).limit(5)
+
+
+class Like(Document):
+    local = ReferenceField('Local')
+    user = ReferenceField('User')
+
+    @staticmethod
+    def create(local, user):
+        like = Like(local.id, user.id)
+        like.save()
+        activity = LikeActivity.create(local, user)
+        return like
+
+    @staticmethod
+    def get_by_local_and_user(local, user):
+        a = Like.objects(Q(local=local.id) & Q(user=user.id)).first()
+        return a

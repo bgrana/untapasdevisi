@@ -12,7 +12,7 @@ from flask.ext.login import LoginManager, login_user, current_user
 from flask.ext.login import login_required, logout_user
 
 import support
-from models import User, Friendship, Activity, Local, connect_db
+from models import User, Friendship, Activity, Local, Like, connect_db
 from forms import ProfileForm, RegisterForm, LoginForm, LocalForm
 
 # Setup
@@ -161,23 +161,14 @@ def post_remove_friend(username):
 
     return redirect(url_for('get_profile', username=user.username))
 
-
-@app.route('/locales/<slug>', methods=['GET'])
-@login_required
-def get_local_profile(slug):
-    local = Local.get_by_slug(slug)
-    if not local:
-        abort(404)
-    return render_template(
-        'local_profile.html', user=current_user, local=local)
-
+# LOCALS
+################################################################################
 
 @app.route('/locales', methods=['GET'])
 @login_required
 def get_locals():
     form = LocalForm(name='', adrress='')
     return render_template('locals.html', user=current_user, form=form)
-
 
 @app.route('/locales', methods=['POST'])
 @login_required
@@ -193,6 +184,27 @@ def post_locals():
         location=form.location.data,
         description=form.description.data
     )
+    return redirect(url_for('get_local_profile', slug=local.slug))
+
+
+@app.route('/locales/<slug>', methods=['GET'])
+@login_required
+def get_local_profile(slug):
+    local = Local.get_by_slug(slug)
+    if not local:
+        abort(404)
+    like = Like.get_by_local_and_user(local, current_user)
+    return render_template('local_profile.html',
+        user=current_user, local=local, like=like)
+
+
+@app.route('/locales/<slug>/megusta', methods=['POST'])
+@login_required
+def post_local_like(slug):
+    local = Local.get_by_slug(slug)
+    if not local:
+        abort(404)
+    like = Like.create(local, current_user)
     return redirect(url_for('get_local_profile', slug=local.slug))
 
 
