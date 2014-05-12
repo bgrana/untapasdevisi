@@ -162,6 +162,16 @@ class LikeActivity(Activity):
         return activity
 
 
+class DislikeActivity(Activity):
+    local = ReferenceField('Local')
+
+    @staticmethod
+    def create(local, user):
+        activity = DislikeActivity(creator=user.id, local=local.id)
+        activity.save()
+        return activity
+
+
 class Local(Document):
     name = StringField(required=True, unique=True)
     slug = StringField(required=True, unique=True)

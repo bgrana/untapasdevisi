@@ -12,7 +12,7 @@ from flask.ext.login import LoginManager, login_user, current_user
 from flask.ext.login import login_required, logout_user
 
 import support
-from models import User, Friendship, Activity, Local, Like, LikeActivity, connect_db
+from models import User, Friendship, Activity, Local, Like, LikeActivity, connect_db, DislikeActivity
 from forms import ProfileForm, RegisterForm, LoginForm, LocalForm, ResetPasswordForm
 
 # Setup
@@ -206,6 +206,22 @@ def post_local_like(slug):
     if not local:
         abort(404)
     like = Like.create(local, current_user)
+    return redirect(url_for('get_local_profile', slug=local.slug))
+
+
+@app.route('/locales/<slug>/nomegusta', methods=['POST'])
+@login_required
+def post_local_dislike(slug):
+    local = Local.get_by_slug(slug)
+    if not local:
+        abort(404)
+
+    like = Like.get_by_local_and_user(local, current_user)
+    if not like:
+        abort(404)
+
+    DislikeActivity.create(local, current_user)
+    like.delete()
     return redirect(url_for('get_local_profile', slug=local.slug))
 
 

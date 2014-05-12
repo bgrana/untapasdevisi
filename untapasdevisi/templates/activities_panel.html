@@ -19,6 +19,13 @@
                     <a href="{{ url_for('get_local_profile', slug=activity.local.slug)}}">
                         {{ activity.local.name }}
                     </a>
+                {% elif activity._cls == 'Activity.DislikeActivity' %}
+                    A <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
+                        {{ activity.creator.screen_name }}
+                    </a> ya no le gusta
+                    <a href="{{ url_for('get_local_profile', slug=activity.local.slug)}}">
+                        {{ activity.local.name }}
+                    </a>
                 {% endif %}
                 <span class="ago">· Hace {{ activity.created | ago }}</span>
             </li>
