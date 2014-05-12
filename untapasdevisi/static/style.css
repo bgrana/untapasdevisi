@@ -5,14 +5,14 @@ body {
 
 a {
     font-size: 12px;
-    color: #796986;
+    color: #7F8199;
     font-weight: bold;
     cursor: pointer;
     text-decoration: none;
 }
 
 a:hover {
-    color: #796986;
+    color: #7F8199;
 }
 
 .panel.center {
@@ -48,7 +48,7 @@ a:hover {
 }
 
 .btn-primary {
-    background-color: #796986;
+    background-color: #7F8199;
     color: #fff;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, .2);
     line-height: 28px;
@@ -58,12 +58,12 @@ a:hover {
     font-weight: bold;
     border: 1px solid;
     border-radius: 3px;
-    border-color: #796986;
+    border-color: #7F8199;
 }
 
 .btn-primary:hover {
-    background-color: #796986;
-    border-color: #796986;
+    background-color: #7F8199;
+    border-color: #7F8199;
 }
 
 .btn-default:hover {
@@ -110,7 +110,7 @@ a:hover {
 */
 
 .navbar-default {
-    background-color: #796986;
+    background-color: #7F8199;
 }
 
 .navbar-default .navbar-brand {
@@ -141,7 +141,7 @@ a:hover {
 
 .navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:hover, .navbar-default .navbar-nav>.open>a:focus {
     color: #fff;
-    background-color: #796986;
+    background-color: #7F8199;
 }
 
 .navbar-main {
@@ -301,7 +301,7 @@ a:hover {
 
 .tt-suggestion.tt-is-under-cursor {
     color: #fff;
-    background-color: #796986;
+    background-color: #7F8199;
 
 }
 
@@ -312,7 +312,7 @@ a:hover {
 
 .tt-suggestion.tt-cursor {
   color: #fff;
-  background-color: #796986;
+  background-color: #7F8199;
   cursor: pointer;
 }
 
