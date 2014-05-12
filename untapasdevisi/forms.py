@@ -9,7 +9,7 @@ USERNAME_RE = r"^\w+$"
 
 def unique_username(form, field):
     user = User.objects(username=field.data).first()
-    if user and (user.is_anonymous() or user.id != current_user.id):
+    if user and (current_user.is_anonymous() or user.id != current_user.id):
         raise validators.ValidationError('El nombre de usuario ya existe.')
 
 
