@@ -13,7 +13,7 @@ from flask.ext.login import login_required, logout_user
 
 import support
 from models import User, Friendship, Activity, Local, Like, LikeActivity, connect_db
-from forms import ProfileForm, RegisterForm, LoginForm, LocalForm
+from forms import ProfileForm, RegisterForm, LoginForm, LocalForm, ResetPasswordForm
 
 # Setup
 ###############################################################################
@@ -277,23 +277,25 @@ def get_reset_password():
     userid = vault.get(key)
     if not userid:
         abort(404)
-    return render_template('reset_password.html')
+    form = ResetPasswordForm()
+    return render_template('reset_password.html', form=form)
 
 
 @app.route('/resetear-clave', methods=['POST'])
 def post_reset_password():
     key = request.args.get('key')
-    password = request.form['password']
-
-    if not password:
-        return render_template('reset_password.html')
 
     userid = vault.get(key)
     if not userid:
         abort(404)
 
+    form = ResetPasswordForm(request.form)
+
+    if not form.validate():
+        return render_template('reset_password.html', form=form)
+
     user = User.objects(id=userid).first()
-    user.update_password(password)
+    user.update_password(form.password.data)
     user.save()
     vault.delete(key)
 

@@ -131,3 +131,15 @@ class LocalForm(Form):
             max=240,
             message=u'La descripción debe ocupar 240 caracteres o menos.')
     ])
+
+class ResetPasswordForm(Form):
+    password = PasswordField('password', default='', validators=[
+        validators.Required(message=u'Debes introducir una contraseña.'),
+        validators.Length(
+            min=6,
+            max=64,
+            message=u'La contraseña debe tener entre 6 y 64 caracteres.'
+        ),
+        validators.EqualTo('confirm', message=u'Las contraseñas no coinciden.')
+    ])
+    confirm = PasswordField('confirm')
