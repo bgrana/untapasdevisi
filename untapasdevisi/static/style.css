@@ -5,13 +5,13 @@ body {
 
 a {
     font-size: 12px;
-    color: #3b5998;
+    color: #464368;
     cursor: pointer;
     text-decoration: none;
 }
 
 a:hover {
-    color: #3b5998;
+    color: #464368;
 }
 
 .panel.center {
@@ -47,7 +47,7 @@ a:hover {
 }
 
 .btn-primary {
-    background-color: #4e69a2;
+    background-color: #464368;
     color: #fff;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, .2);
     line-height: 28px;
@@ -57,11 +57,11 @@ a:hover {
     font-weight: bold;
     border: 1px solid;
     border-radius: 3px;
-    border-color: #435a8b #3c5488 #334c83;
+    border-color: #464368;
 }
 
 .btn-primary:hover {
-    background-color: #4e69a2;
+    background-color: #464368;
 }
 
 .btn-default:hover {
@@ -108,7 +108,7 @@ a:hover {
 */
 
 .navbar-default {
-    background-color: #4e69a2;
+    background-color: #464368;
 }
 
 .navbar-default .navbar-brand {
@@ -139,7 +139,7 @@ a:hover {
 
 .navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:hover, .navbar-default .navbar-nav>.open>a:focus {
     color: #fff;
-    background-color: #4e69a2;
+    background-color: #464368;
 }
 
 .navbar-main {
@@ -299,7 +299,7 @@ a:hover {
 
 .tt-suggestion.tt-is-under-cursor {
     color: #fff;
-    background-color: #4e69a2;
+    background-color: #464368;
 
 }
 
@@ -310,7 +310,7 @@ a:hover {
 
 .tt-suggestion.tt-cursor {
   color: #fff;
-  background-color: #4e69a2;
+  background-color: #464368;
   cursor: pointer;
 }
 
