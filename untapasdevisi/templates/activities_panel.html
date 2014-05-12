@@ -11,7 +11,7 @@
                     <a href="{{ url_for('get_profile', username=activity.friend.username)}}">
                         {{ activity.friend.screen_name }}
                     </a>
-                    son ahora amigos.
+                    son ahora amigos
                 {% elif activity._cls == 'Activity.LikeActivity' %}
                     A <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
                         {{ activity.creator.screen_name }}

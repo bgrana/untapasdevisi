@@ -299,7 +299,7 @@ a:hover {
 
 .tt-suggestion.tt-is-under-cursor {
     color: #fff;
-    background-color: #0097cf;
+    background-color: #4e69a2;
 
 }
 
@@ -310,7 +310,7 @@ a:hover {
 
 .tt-suggestion.tt-cursor {
   color: #fff;
-  background-color: #0097cf;
+  background-color: #4e69a2;
   cursor: pointer;
 }
 
