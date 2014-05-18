@@ -12,8 +12,10 @@ from flask.ext.login import LoginManager, login_user, current_user
 from flask.ext.login import login_required, logout_user
 
 import support
-from models import User, Friendship, Activity, Local, Like, LikeActivity, connect_db, DislikeActivity
-from forms import ProfileForm, RegisterForm, LoginForm, LocalForm, ResetPasswordForm
+from models import User, Friendship, Activity, Local, Like
+from models import LikeActivity, connect_db, DislikeActivity, Tasting
+from forms import ProfileForm, RegisterForm, LoginForm, LocalForm
+from forms import ResetPasswordForm, TastingForm
 
 # Setup
 ###############################################################################
@@ -77,7 +79,8 @@ def ago_filter(date):
 @login_required
 def get_index():
     friends = Friendship.get_confirmed_from_user(current_user)
-    activities = Activity.objects(creator=current_user.id).order_by('-created').limit(10)
+    user = User.objects(username=current_user.username).first()
+    activities = Activity.search(current_user.id, user).order_by('-created').limit(10)
     return render_template('index.html', user=current_user,
         friends=friends, activities=activities)
 
@@ -158,17 +161,15 @@ def post_remove_friend(username):
         abort(404)
 
     friendship.delete()
-
     return redirect(url_for('get_profile', username=user.username))
 
-# LOCALS
-################################################################################
 
 @app.route('/locales', methods=['GET'])
 @login_required
 def get_locals():
     form = LocalForm(name='', adrress='')
     return render_template('locals.html', user=current_user, form=form)
+
 
 @app.route('/locales', methods=['POST'])
 @login_required
@@ -194,7 +195,7 @@ def get_local_profile(slug):
     if not local:
         abort(404)
     like = Like.get_by_local_and_user(local, current_user)
-    activities = LikeActivity.objects(local=local.id).order_by('-created').limit(10)
+    activities = Activity.objects(target=local).order_by('-created').limit(10)
     return render_template('local_profile.html',
         user=current_user, local=local, like=like, activities=activities)
 
@@ -205,7 +206,9 @@ def post_local_like(slug):
     local = Local.get_by_slug(slug)
     if not local:
         abort(404)
-    like = Like.create(local, current_user)
+
+    user = User.objects(username=current_user.username).first()
+    like = Like.create(local, user)
     return redirect(url_for('get_local_profile', slug=local.slug))
 
 
@@ -220,10 +223,50 @@ def post_local_dislike(slug):
     if not like:
         abort(404)
 
-    DislikeActivity.create(local, current_user)
+    user = User.objects(username=current_user.username).first()
+    DislikeActivity.create(local, user)
     like.delete()
     return redirect(url_for('get_local_profile', slug=local.slug))
 
+
+@app.route('/degustaciones/<slug>', methods=['GET'])
+@login_required
+def get_tasting_profile(slug):
+    tasting = Tasting.get_by_slug(slug)
+    if not tasting:
+        abort(404)
+
+    activities = Activity.objects(target=tasting).order_by('-created').limit(10)
+    return render_template('tasting_profile.html',
+        user=current_user, tasting=tasting, activities=activities)
+
+
+@app.route('/degustaciones', methods=['GET'])
+@login_required
+def get_tastings():
+    form = TastingForm()
+    return render_template('tastings.html', form=form, user=current_user)
+
+
+@app.route('/degustaciones', methods=['POST'])
+@login_required
+def post_tastings():
+    form = TastingForm(request.form)
+
+    if not form.validate():
+        return render_template(
+            'tastings.html', user=current_user, error=True, form=form)
+
+    tasting = Tasting.create_tasting(
+        name=form.name.data,
+        local_name=form.local_name.data,
+        recipe=form.recipe.data
+    )
+    print tasting.slug
+    return redirect(url_for('get_tasting_profile', slug=tasting.slug))
+
+# USERS
+################################################################################
 
 @app.route('/entrar', methods=['GET'])
 def get_login():
@@ -353,6 +396,8 @@ def get_resend():
         flash(u"Su cuenta ya se encuentra validada.", 'danger')
     return redirect(url_for('get_index'))
 
+# SEARCH
+################################################################################
 
 @app.route('/buscar', methods=['GET'])
 @login_required

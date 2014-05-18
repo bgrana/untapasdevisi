@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-from mongoengine import connect, Document, StringField
+from mongoengine import connect, Document, StringField, ListField
 from mongoengine import ReferenceField, DateTimeField, BooleanField, Q
+from mongoengine import GenericReferenceField, GenericEmbeddedDocumentField
+from mongoengine import EmbeddedDocument
 from passlib.hash import bcrypt
 
 
@@ -126,13 +128,8 @@ class Friendship(Document):
         self.confirmed = True
         self.save()
 
-        creator_activity = FriendshipActivity(
-            creator=self.creator.id, friend=self.friend.id)
-        creator_activity.save()
-
-        friend_activity = FriendshipActivity(
-            creator=self.friend.id, friend=self.creator.id)
-        friend_activity.save()
+        friend_activity = FriendshipActivity.create(
+            creator=self.creator, friend=self.friend)
 
     def get_friend(self, user):
         if user == self.creator:
@@ -143,31 +140,40 @@ class Friendship(Document):
 
 class Activity(Document):
     creator = ReferenceField('User')
+    target = GenericReferenceField()
     created = DateTimeField(default=datetime.datetime.now)
+
+    @staticmethod
+    def search(creator, target):
+        return Activity.objects.filter(
+            Q(creator=creator) | Q(target=target))
 
     meta = {'allow_inheritance': True}
 
 
 class FriendshipActivity(Activity):
-    friend = ReferenceField('User')
+    
+    @staticmethod
+    def create(creator, friend):
+        activity = FriendshipActivity(creator=creator, target=friend)
+        activity.save()
+        return activity
 
 
 class LikeActivity(Activity):
-    local = ReferenceField('Local')
 
     @staticmethod
     def create(local, user):
-        activity = LikeActivity(creator=user.id, local=local.id)
+        activity = LikeActivity(creator=user, target=local)
         activity.save()
         return activity
 
 
 class DislikeActivity(Activity):
-    local = ReferenceField('Local')
 
     @staticmethod
     def create(local, user):
-        activity = DislikeActivity(creator=user.id, local=local.id)
+        activity = DislikeActivity(creator=user, target=local)
         activity.save()
         return activity
 
@@ -220,3 +226,36 @@ class Like(Document):
     def get_by_local_and_user(local, user):
         a = Like.objects(Q(local=local.id) & Q(user=user.id)).first()
         return a
+
+
+class Tasting(Document):
+    name = StringField(required=True, unique=True)
+    slug = StringField(required=True, unique=True)
+    local_name = StringField(required=True)
+    local_slug = StringField(required=True)
+    recipe = StringField()
+    created = DateTimeField(default=datetime.datetime.now)
+
+    @staticmethod
+    def create_tasting(name, local_name, recipe=""):
+        name = name
+        slug = Tasting.slugify(name)
+        local_name = local_name
+        local_slug = Tasting.slugify(local_name)
+        tasting = Tasting(
+            name=name,
+            slug=slug,
+            local_name=local_name,
+            local_slug=local_slug,
+            recipe=recipe
+        )
+        tasting.save()
+        return tasting
+
+    @staticmethod
+    def get_by_slug(slug):
+        return Tasting.objects(slug=slug).first()
+
+    @staticmethod
+    def slugify(name):
+        return name.strip().lower().replace(' ', '-')

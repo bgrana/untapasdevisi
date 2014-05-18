@@ -3,21 +3,36 @@
 import re
 from wtforms import Form, TextField, PasswordField, validators, TextAreaField
 from flask.ext.login import current_user
-from models import User, Local
+from models import User, Local, Tasting
 
 USERNAME_RE = r"^\w+$"
 
 def unique_username(form, field):
     user = User.objects(username=field.data).first()
     if user and (current_user.is_anonymous() or user.id != current_user.id):
-        raise validators.ValidationError('El nombre de usuario ya existe.')
-
+        raise validators.ValidationError(
+            u'El nombre de usuario ya existe.')
 
 def unique_localname(form, field):
     slug = Local.slugify(field.data)
     local = Local.get_by_slug(slug)
     if local:
-        raise validators.ValidationError(u'El nombre de local ya existe.')
+        raise validators.ValidationError(
+            u'El nombre de local ya existe.')
+
+def unique_tasting_name(form, field):
+    slug = Tasting.slugify(field.data)
+    tasting = Tasting.get_by_slug(slug)
+    if tasting:
+        raise validators.ValidationError(
+            u'El nombre de degustación ya existe.')
+
+def local_exists(form, field):
+    slug = Local.slugify(field.data)
+    local = Local.get_by_slug(slug)
+    if not local:
+        raise validators.ValidationError(
+            u'El local no existe o no está registrado en el sistema.')
 
 def strip(s):
     return s.strip()
@@ -143,3 +158,24 @@ class ResetPasswordForm(Form):
         validators.EqualTo('confirm', message=u'Las contraseñas no coinciden.')
     ])
     confirm = PasswordField('confirm')
+
+class TastingForm(Form):
+    name = TextField('name', default='', filters=[strip], validators=[
+        validators.Length(
+            min=1,
+            max=40,
+            message=u'El nombre del local debe tener entre 1 y 40 caracteres.'
+        ),
+        validators.Required(message=u'Debes introducir un nombre.'),
+        unique_tasting_name
+    ])
+    local_name = TextField('local_name', default='', filters=[strip], validators=[
+        validators.Required(message=u'Debes introducir el local al que pertenece el plato.'),
+        local_exists
+    ])
+    recipe = TextAreaField('recipe', default='', filters=[strip], validators=[
+        validators.Optional(),
+        validators.Length(
+            max=240,
+            message=u'La receta debe ocupar 240 caracteres o menos.')
+    ])

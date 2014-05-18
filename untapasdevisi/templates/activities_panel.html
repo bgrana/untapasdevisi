@@ -8,23 +8,23 @@
                     <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
                         {{ activity.creator.screen_name }}
                     </a> y
-                    <a href="{{ url_for('get_profile', username=activity.friend.username)}}">
-                        {{ activity.friend.screen_name }}
+                    <a href="{{ url_for('get_profile', username=activity.target.username)}}">
+                        {{ activity.target.screen_name }}
                     </a>
                     son ahora amigos
                 {% elif activity._cls == 'Activity.LikeActivity' %}
                     A <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
                         {{ activity.creator.screen_name }}
                     </a> le gusta
-                    <a href="{{ url_for('get_local_profile', slug=activity.local.slug)}}">
-                        {{ activity.local.name }}
+                    <a href="{{ url_for('get_local_profile', slug=activity.target.slug)}}">
+                        {{ activity.target.name }}
                     </a>
                 {% elif activity._cls == 'Activity.DislikeActivity' %}
                     A <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
                         {{ activity.creator.screen_name }}
                     </a> ya no le gusta
-                    <a href="{{ url_for('get_local_profile', slug=activity.local.slug)}}">
-                        {{ activity.local.name }}
+                    <a href="{{ url_for('get_local_profile', slug=activity.target.slug)}}">
+                        {{ activity.target.name }}
                     </a>
                 {% endif %}
                 <span class="ago">· Hace {{ activity.created | ago }}</span>
