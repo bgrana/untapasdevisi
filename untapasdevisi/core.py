@@ -23,7 +23,8 @@ import os
 ###############################################################################
 
 app = Flask(__name__)
-UPLOAD_FOLDER = os.path.join(app.root_path, 'images')
+IMG_PATH = 'images'
+UPLOAD_FOLDER = os.path.join(app.root_path, IMG_PATH)
 app.config.from_object(__name__)
 app.config.update({
     'DEBUG': True,
@@ -340,11 +341,6 @@ def post_register():
         return render_template('register.html', error=True, form=form)
 
     user = User.register(form)
-    file_object = open(os.path.join(app.config['UPLOAD_FOLDER'], 'no_avatar.jpg'))
-    filename = secure_filename('no_avatar.jpg')
-    file_object.save(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'rw')
-    user.avatar = url_for('updated_files', 'no_avatar.jpg')
-    user.save()
     key = vault.put(user.id, 60*60*24)
     postman.send_validation_email(user, key)
 

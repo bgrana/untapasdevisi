@@ -7,6 +7,7 @@ from mongoengine import GenericReferenceField, GenericEmbeddedDocumentField
 from mongoengine import EmbeddedDocument, ImageField
 from passlib.hash import bcrypt
 
+IMG_PATH = 'images'
 
 def connect_db(dbname):
     connect(dbname)
@@ -35,6 +36,7 @@ class User(Document):
             username=form.username.data, firstname=form.firstname.data,
             lastname=form.lastname.data, email=form.email.data)
         user.password_hash = bcrypt.encrypt(form.password.data)
+        user.avatar = '/' + IMG_PATH + '/no_avatar.jpg'
         user.save()
         return user
 
