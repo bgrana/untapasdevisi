@@ -15,7 +15,7 @@ import support
 from models import User, Friendship, Activity, Local, Like
 from models import LikeActivity, connect_db, DislikeActivity, Tasting
 from forms import ProfileForm, RegisterForm, LoginForm, LocalForm
-from forms import ResetPasswordForm, TastingForm, UploadForm
+from forms import ResetPasswordForm, TastingForm
 from werkzeug import secure_filename
 import os
 
