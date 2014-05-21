@@ -3,7 +3,10 @@
 {% block body %}
 <nav class="navbar navbar-default profilebar" role="navigation">
   <div class="navbar-header">
-    <a class="navbar-brand" href="{{ url_for('get_profile', username=visited_user.username) }}">
+    <a href="{{ url_for('get_profile', username=visited_user.username) }}">
+      <img id="avatar"  name="avatar" class="img-thumbnail image avatar" src="{{ image }}" />
+    </a>
+    <a class="navbar-brand name-bar" href="{{ url_for('get_profile', username=visited_user.username) }}">
       {{ visited_user.screen_name }} <span class="slug">({{visited_user.username}})</span>
     </a>
   </div>

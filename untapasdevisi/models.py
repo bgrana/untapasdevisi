@@ -4,7 +4,7 @@ import datetime
 from mongoengine import connect, Document, StringField, ListField
 from mongoengine import ReferenceField, DateTimeField, BooleanField, Q
 from mongoengine import GenericReferenceField, GenericEmbeddedDocumentField
-from mongoengine import EmbeddedDocument
+from mongoengine import EmbeddedDocument, ImageField
 from passlib.hash import bcrypt
 
 
@@ -21,6 +21,7 @@ class User(Document):
     created = DateTimeField(default=datetime.datetime.now)
     activated = BooleanField()
     password_hash = StringField()
+    avatar = StringField()
 
     @staticmethod
     def authenticate(username, password):

@@ -1,5 +1,7 @@
 $(function() {
 
+  var URL = '127.0.0.1:5000'
+
   var users = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.obj.whitespace('username'),
     queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -58,4 +60,23 @@ $(function() {
       }
   });
 
+
+  $('#search-local').typeahead({
+    hint: true,
+    highlight: true,
+    minLength: 1
+  },
+  {
+    name: 'locals',
+    displayKey: 'name',
+    source: locals.ttAdapter(),
+    templates: {
+      header: '<h3 class="section-name">Locales</h3>',
+      suggestion: Handlebars.compile('{{name}}')
+    }
+  });
+
+  $("img#chooser").click(function(){
+      $("#image").trigger("click");
+  });
 });

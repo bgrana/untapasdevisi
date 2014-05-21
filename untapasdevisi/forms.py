@@ -2,6 +2,7 @@
 
 import re
 from wtforms import Form, TextField, PasswordField, validators, TextAreaField
+from wtforms import FileField
 from flask.ext.login import current_user
 from models import User, Local, Tasting
 

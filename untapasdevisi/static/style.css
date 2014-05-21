@@ -120,6 +120,10 @@ a:hover {
     text-shadow: 0 -1px rgba(0, 0, 0, .5);
 }
 
+.navbar-default .navbar-brand.name-bar {
+    float: none;
+}
+
 .navbar-default .navbar-brand:hover{
     color: #fff;
 }
@@ -318,4 +322,27 @@ a:hover {
 
 .tt-suggestion.tt-cursor .slug{
   color: #fff;
+}
+
+/* Images
+-----------------------------------------------------------------------------
+*/
+
+.image {
+    margin: 4px;
+}
+
+.avatar-jumbo {
+    width: 150px;
+    height: 150px;
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+}
+
+.avatar-mini {
+    width: 25px;
+    height: 25px;
 }

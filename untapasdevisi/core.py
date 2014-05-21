@@ -7,7 +7,7 @@ import redis
 from babel.dates import format_date, format_timedelta
 
 from flask import Flask, request, render_template, redirect, url_for
-from flask import abort, flash
+from flask import abort, flash, send_from_directory
 from flask.ext.login import LoginManager, login_user, current_user
 from flask.ext.login import login_required, logout_user
 
@@ -15,12 +15,15 @@ import support
 from models import User, Friendship, Activity, Local, Like
 from models import LikeActivity, connect_db, DislikeActivity, Tasting
 from forms import ProfileForm, RegisterForm, LoginForm, LocalForm
-from forms import ResetPasswordForm, TastingForm
+from forms import ResetPasswordForm, TastingForm, UploadForm
+from werkzeug import secure_filename
+import os
 
 # Setup
 ###############################################################################
 
 app = Flask(__name__)
+UPLOAD_FOLDER = os.path.join(app.root_path, 'images')
 app.config.from_object(__name__)
 app.config.update({
     'DEBUG': True,
@@ -29,7 +32,9 @@ app.config.update({
     'MAILGUN_API_USER': 'sandbox74944',
     'MAILGUN_API_KEY': 'key-84mxu54004c5y47zgym0z-d34jnsvl18',
     'MONGODB_DB_NAME': 'untapasdevisi',
-    'REDIS_URL': 'localhost'
+    'REDIS_URL': 'localhost',
+    'UPLOAD_FOLDER': UPLOAD_FOLDER,
+    'ALLOWED_EXTENSIONS': set(['jpg'])
 })
 
 postman = support.Postman(
@@ -95,7 +100,8 @@ def get_settings():
         lastname=current_user.lastname,
         location=current_user.location
     )
-    return render_template('settings.html', user=current_user, form=form)
+    image = current_user.avatar
+    return render_template('settings.html', user=current_user, form=form, image=image)
 
 
 @app.route('/configuracion', methods=['POST'])
@@ -105,7 +111,37 @@ def post_settings():
     if form.validate():
         current_user.update(form)
         flash(u'Perfil actualizado correctamente', 'success')
-    return render_template('settings.html', user=current_user, form=form)
+    image = current_user.avatar.read()
+    return redirect(url_for('get_settings'))
+
+
+@app.route('/upload', methods=['POST'])
+@login_required
+def upload():
+    file = request.files['image']
+    if not file:
+        flash(u'No has seleccionado ninguna imagen','warning')
+        return redirect(url_for('get_settings'))
+    filename = secure_filename(file.filename)
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    user = User.objects(username=current_user.username).first()
+    user.avatar = url_for('uploaded_file', filename=filename)
+    user.save()
+    flash(u'Foto de perfil actualizada', 'success')
+    form = ProfileForm(
+        username=current_user.username,
+        email=current_user.email,
+        firstname=current_user.firstname,
+        lastname=current_user.lastname,
+        location=current_user.location
+    )
+    return redirect(url_for('get_settings'))
+
+
+@app.route('/images/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'],
+                               filename)
 
 
 @app.route('/solicitudes', methods=['GET'])
@@ -132,11 +168,12 @@ def get_profile(username):
     visited_user = User.objects(username=username).first()
     if not visited_user:
         abort(404)
+    image = visited_user.avatar
     friendship = Friendship.get_from_users([current_user, visited_user])
     activities = Activity.objects(creator=visited_user).order_by('-created').limit(10)
     return render_template(
         'profile.html', user=current_user, visited_user=visited_user,
-        activities=activities, friendship=friendship)
+        activities=activities, friendship=friendship, image=image)
 
 
 @app.route('/usuarios/<username>/solicitud', methods=['POST'])
@@ -303,7 +340,11 @@ def post_register():
         return render_template('register.html', error=True, form=form)
 
     user = User.register(form)
-
+    file_object = open(os.path.join(app.config['UPLOAD_FOLDER'], 'no_avatar.jpg'))
+    filename = secure_filename('no_avatar.jpg')
+    file_object.save(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'rw')
+    user.avatar = url_for('updated_files', 'no_avatar.jpg')
+    user.save()
     key = vault.put(user.id, 60*60*24)
     postman.send_validation_email(user, key)
 

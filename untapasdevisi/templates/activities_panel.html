@@ -6,14 +6,23 @@
             <li class="list-group-item activity">
                 {% if activity._cls == 'Activity.FriendshipActivity' %}
                     <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
+                        <img src=" {{ activity.creator.avatar }}" class="img-circle image avatar-mini">
+                    </a>
+                    <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
                         {{ activity.creator.screen_name }}
                     </a> y
+                    <a href="{{ url_for('get_profile', username=activity.target.username)}}">
+                        <img src=" {{ activity.target.avatar }}" class="img-circle image avatar-mini">
+                    </a>
                     <a href="{{ url_for('get_profile', username=activity.target.username)}}">
                         {{ activity.target.screen_name }}
                     </a>
                     son ahora amigos
                 {% elif activity._cls == 'Activity.LikeActivity' %}
                     A <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
+                        <img src=" {{ activity.creator.avatar }}" class="img-circle image avatar-mini">
+                    </a>
+                    <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
                         {{ activity.creator.screen_name }}
                     </a> le gusta
                     <a href="{{ url_for('get_local_profile', slug=activity.target.slug)}}">
@@ -21,6 +30,9 @@
                     </a>
                 {% elif activity._cls == 'Activity.DislikeActivity' %}
                     A <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
+                        <img src=" {{ activity.creator.avatar }}" class="img-circle image avatar-mini">
+                    </a>
+                    <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
                         {{ activity.creator.screen_name }}
                     </a> ya no le gusta
                     <a href="{{ url_for('get_local_profile', slug=activity.target.slug)}}">
