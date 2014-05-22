@@ -35,7 +35,7 @@ app.config.update({
     'MONGODB_DB_NAME': 'untapasdevisi',
     'REDIS_URL': 'localhost',
     'UPLOAD_FOLDER': UPLOAD_FOLDER,
-    'ALLOWED_EXTENSIONS': set(['jpg'])
+    'ALLOWED_EXTENSIONS': set(['jpg', 'png'])
 })
 
 postman = support.Postman(
@@ -112,7 +112,6 @@ def post_settings():
     if form.validate():
         current_user.update(form)
         flash(u'Perfil actualizado correctamente', 'success')
-    image = current_user.avatar.read()
     return redirect(url_for('get_settings'))
 
 
@@ -218,11 +217,22 @@ def post_locals():
         return render_template(
             'locals.html', user=current_user, error=True, form=form)
 
-    local = Local.create_local(
-        name=form.name.data,
-        location=form.location.data,
-        description=form.description.data
-    )
+    file = request.files['image']
+    if not file:
+        local = Local.create_local(
+            name=form.name.data,
+            location=form.location.data,
+            description=form.description.data
+        )
+    else:
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        local = Local.create_local(
+            name=form.name.data,
+            location=form.location.data,
+            description=form.description.data,
+            avatar=url_for('uploaded_file', filename=filename)
+        )
     return redirect(url_for('get_local_profile', slug=local.slug))
 
 
@@ -295,18 +305,22 @@ def post_tastings():
         return render_template(
             'tastings.html', user=current_user, error=True, form=form)
 
-    tasting = Tasting.create_tasting(
+    file = request.files['image']
+    if not file:
+        tasting = Tasting.create_tasting(
         name=form.name.data,
         local_name=form.local_name.data,
         recipe=form.recipe.data
-    )
-    file = request.files['image']
-    if not file:
-        return redirect(url_for('get_tasting_profile', slug=tasting.slug))
-    filename = secure_filename(file.filename)
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    tasting.avatar = url_for('uploaded_file', filename=filename)
-    tasting.save()
+        )
+    else:
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        tasting = Tasting.create_tasting(
+            name=form.name.data,
+            local_name=form.local_name.data,
+            recipe=form.recipe.data,
+            avatar=url_for('uploaded_file', filename=filename)
+        )
     return redirect(url_for('get_tasting_profile', slug=tasting.slug))
 
 # USERS

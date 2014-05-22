@@ -186,17 +186,21 @@ class Local(Document):
     slug = StringField(required=True, unique=True)
     location = StringField(required=True)
     description = StringField()
+    avatar = StringField()
     created = DateTimeField(default=datetime.datetime.now)
 
     @staticmethod
-    def create_local(name, location, description=""):
+    def create_local(name, location, description="",
+        avatar='/'+IMG_PATH+'/no_local_avatar.png'):
+        
         name = name
         slug = Local.slugify(name)
         local = Local(
             name=name,
             slug=slug,
             location=location,
-            description=description
+            description=description,
+            avatar=avatar
         )
         local.save()
         return local
@@ -241,7 +245,9 @@ class Tasting(Document):
     created = DateTimeField(default=datetime.datetime.now)
 
     @staticmethod
-    def create_tasting(name, local_name, recipe=""):
+    def create_tasting(name, local_name, recipe="",
+        avatar='/'+IMG_PATH+'/no_tasting_avatar.png'):
+        
         name = name
         slug = Tasting.slugify(name)
         local_name = local_name
@@ -251,9 +257,9 @@ class Tasting(Document):
             slug=slug,
             local_name=local_name,
             local_slug=local_slug,
-            recipe=recipe
+            recipe=recipe,
+            avatar=avatar
         )
-        tasting.avatar = '/' + IMG_PATH + '/no_tasting_avatar.png'
         tasting.save()
         return tasting
 
