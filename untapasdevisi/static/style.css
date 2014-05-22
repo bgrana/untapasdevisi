@@ -122,6 +122,7 @@ a:hover {
 
 .navbar-default .navbar-brand.name-bar {
     float: none;
+    padding-left: 0px;
 }
 
 .navbar-default .navbar-brand:hover{
@@ -141,6 +142,10 @@ a:hover {
 
 .navbar-form {
     margin-bottom: 0;
+}
+
+.navbar-right.friendship-button {
+    margin-top: 27px;
 }
 
 .navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:hover, .navbar-default .navbar-nav>.open>a:focus {
@@ -345,4 +350,5 @@ a:hover {
 .avatar-mini {
     width: 25px;
     height: 25px;
+    margin-right: 0px;
 }
