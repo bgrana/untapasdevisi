@@ -4,7 +4,7 @@
 <nav class="navbar navbar-default profilebar" role="navigation">
   <div class="navbar-header">
     <a class="navbar-brand name-bar" href="{{ url_for('get_profile', username=visited_user.username) }}">
-      <img id="avatar"  name="avatar" class="img-thumbnail image avatar" src="{{ image }}" />
+      <img id="avatar"  name="avatar" class="img-thumbnail image avatar" src="{{ visited_user.avatar }}" />
       {{ visited_user.screen_name }} <span class="slug">({{visited_user.username}})</span>
     </a>
   </div>

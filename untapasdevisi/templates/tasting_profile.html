@@ -3,7 +3,10 @@
 {% block body %}
 <nav class="navbar navbar-default profilebar" role="navigation">
   <div class="navbar-header">
-    <a class="navbar-brand" href="#">{{ tasting.name }}</a>
+    <a class="navbar-brand name-bar" href="">
+      <img class="img-thumbnail image avatar" id="chooser" name="chooser" src="{{ tasting.avatar }}" />
+      {{ tasting.name }}
+    </a>
   </div>
   <div class="collapse navbar-collapse">
 

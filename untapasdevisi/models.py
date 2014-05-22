@@ -237,6 +237,7 @@ class Tasting(Document):
     local_name = StringField(required=True)
     local_slug = StringField(required=True)
     recipe = StringField()
+    avatar = StringField()
     created = DateTimeField(default=datetime.datetime.now)
 
     @staticmethod
@@ -252,6 +253,7 @@ class Tasting(Document):
             local_slug=local_slug,
             recipe=recipe
         )
+        tasting.avatar = '/' + IMG_PATH + '/no_tasting_avatar.png'
         tasting.save()
         return tasting
 

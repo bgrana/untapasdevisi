@@ -300,7 +300,13 @@ def post_tastings():
         local_name=form.local_name.data,
         recipe=form.recipe.data
     )
-    print tasting.slug
+    file = request.files['image']
+    if not file:
+        return redirect(url_for('get_tasting_profile', slug=tasting.slug))
+    filename = secure_filename(file.filename)
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    tasting.avatar = url_for('uploaded_file', filename=filename)
+    tasting.save()
     return redirect(url_for('get_tasting_profile', slug=tasting.slug))
 
 # USERS
