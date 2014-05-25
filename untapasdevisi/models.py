@@ -4,7 +4,7 @@ import datetime
 from mongoengine import connect, Document, StringField, ListField
 from mongoengine import ReferenceField, DateTimeField, BooleanField, Q
 from mongoengine import GenericReferenceField, GenericEmbeddedDocumentField
-from mongoengine import EmbeddedDocument, ImageField
+from mongoengine import EmbeddedDocument, IntField
 from passlib.hash import bcrypt
 
 IMG_PATH = 'images'
@@ -242,6 +242,8 @@ class Tasting(Document):
     local_slug = StringField(required=True)
     recipe = StringField()
     avatar = StringField()
+    points = IntField(default=0)
+    user_votes = IntField(default=0)
     created = DateTimeField(default=datetime.datetime.now)
 
     @staticmethod
@@ -270,3 +272,27 @@ class Tasting(Document):
     @staticmethod
     def slugify(name):
         return name.strip().lower().replace(' ', '-')
+
+
+class Vote(Document):
+    user = ReferenceField('User')
+    tasting = ReferenceField('Tasting')
+    points = IntField()
+
+    @staticmethod
+    def create_vote(user, tasting, points):
+        points = int(points)
+        vote = Vote(user=user, tasting=tasting, points=points)
+        vote.save()
+        tasting.points += points
+        tasting.user_votes += 1
+        tasting.save()
+
+    def update_vote(self, points):
+        points = int(points)
+        old_points = self.points
+        self.points = points
+        self.save()
+        tasting = self.tasting
+        tasting.points = tasting.points - old_points + self.points
+        tasting.save()

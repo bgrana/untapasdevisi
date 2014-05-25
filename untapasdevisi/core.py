@@ -12,7 +12,7 @@ from flask.ext.login import LoginManager, login_user, current_user
 from flask.ext.login import login_required, logout_user
 
 import support
-from models import User, Friendship, Activity, Local, Like
+from models import User, Friendship, Activity, Local, Like, Vote
 from models import LikeActivity, connect_db, DislikeActivity, Tasting
 from forms import ProfileForm, RegisterForm, LoginForm, LocalForm
 from forms import ResetPasswordForm, TastingForm
@@ -285,8 +285,17 @@ def get_tasting_profile(slug):
         abort(404)
 
     activities = Activity.objects(target=tasting).order_by('-created').limit(10)
-    return render_template('tasting_profile.html',
-        user=current_user, tasting=tasting, activities=activities)
+    vote = Vote.objects(user=current_user.id, tasting=tasting.id).first()
+    if vote:
+        print tasting.points
+        print tasting.user_votes
+        return render_template('tasting_profile.html',
+            user=current_user, tasting=tasting,
+            activities=activities, vote=vote)
+    else:
+        return render_template('tasting_profile.html',
+            user=current_user, tasting=tasting,
+            activities=activities, vote=None)
 
 
 @app.route('/degustaciones', methods=['GET'])
@@ -322,6 +331,21 @@ def post_tastings():
             avatar=url_for('uploaded_file', filename=filename)
         )
     return redirect(url_for('get_tasting_profile', slug=tasting.slug))
+
+
+@app.route('/degustaciones/<tasting_slug>/votar', methods=['POST'])
+@login_required
+def post_vote(tasting_slug):
+    user = User.objects(username=current_user.username).first()
+    tasting = Tasting.get_by_slug(tasting_slug)
+    points = request.form['points']
+    vote = Vote.objects(user=user.id, tasting=tasting.id).first()
+    if vote:
+        vote.update_vote(points)
+    else:
+        vote = Vote.create_vote(user, tasting, points)
+    return redirect(url_for(
+        'get_tasting_profile', slug=tasting.slug))
 
 # USERS
 ################################################################################

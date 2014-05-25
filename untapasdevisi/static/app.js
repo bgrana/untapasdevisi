@@ -77,6 +77,15 @@ $(function() {
   });
 
   $("img#chooser").click(function(){
-      $("#image").trigger("click");
+    $("#image").trigger("click");
   });
 });
+
+function show_score(score) {
+  $("#rating").text(score);
+}
+
+function vote(score) {
+  $("#points").attr("value", score);
+  $("#submit_vote").click();
+}
