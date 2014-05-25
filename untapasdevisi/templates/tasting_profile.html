@@ -20,12 +20,17 @@
         {% endif %}
       </div>
       {% if tasting.user_votes == 0 %}
-          <ul onmouseout="javascript:show_score(0)" class="star-rating">
+      <ul onmouseout="javascript:show_score(0)" class="star-rating">
       {% else %}
-          <ul onmouseout="javascript:show_score({{ tasting.points / tasting.user_votes }})" class="star-rating">
+      <ul onmouseout="javascript:show_score({{ tasting.points / tasting.user_votes }})" class="star-rating">
       {% endif %}
+      
+        {% if vote %}
         <li style="width: {{ 8 * vote.points }}px;" id="current-rating" class="current-rating">{{ vote.points }}</li>
-        
+        {% else %}
+        <li style="width:0px;" id="current-rating" class="current-rating">{{ vote.points }}</li>
+        {% endif %}
+
         <li><a onmouseover="javascript:show_score(1)" class="one-star" title="1 estrella de 10" href="javascript:vote(1)">1</a></li>
         <li><a onmouseover="javascript:show_score(2)" class="two-stars" title="2 estrellas de 10" href="javascript:vote(2)">2</a></li>
         <li><a onmouseover="javascript:show_score(3)" class="three-stars" title="3 estrellas de 10" href="javascript:vote(3)">3</a></li>
@@ -61,29 +66,9 @@
       </ul>
     </div>
   </div>
-  <div class="col-md-9">
-    <div class="panel panel-default">
-      <div class="panel-heading">Actividades</div>
-        {% if activities %}
-        <ul class="list-group">
-        {% for activity in activities %}
-            <li class="list-group-item activity">
-                A <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
-                    {{ activity.creator.screen_name }}
-                </a> le gusta
-                <a href="{{ url_for('get_tasting_profile', slug=activity.target.slug)}}">
-                    {{ activity.target.name }}
-                </a>
-                <span class="ago">· Hace {{ activity.created | ago }}</span>
-            </li>
-        {% endfor %}
-        </ul>
+    <div class="col-md-9">
+      {% include 'activities_panel.html' %}
     </div>
-    {% else %}
-    <div class="panel-body">
-        No hay actividad reciente
-    </div>
-    {% endif %}
     </div>
   </div>
 </div>

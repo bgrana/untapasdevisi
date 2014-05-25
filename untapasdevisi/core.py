@@ -287,8 +287,6 @@ def get_tasting_profile(slug):
     activities = Activity.objects(target=tasting).order_by('-created').limit(10)
     vote = Vote.objects(user=current_user.id, tasting=tasting.id).first()
     if vote:
-        print tasting.points
-        print tasting.user_votes
         return render_template('tasting_profile.html',
             user=current_user, tasting=tasting,
             activities=activities, vote=vote)

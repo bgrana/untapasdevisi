@@ -181,6 +181,16 @@ class DislikeActivity(Activity):
         return activity
 
 
+class VoteActivity(Activity):
+    points = IntField()
+
+    @staticmethod
+    def create(tasting, user, points):
+        activity = VoteActivity(creator=user, target=tasting, points=points)
+        activity.save()
+        return activity
+
+
 class Local(Document):
     name = StringField(required=True, unique=True)
     slug = StringField(required=True, unique=True)
@@ -287,6 +297,7 @@ class Vote(Document):
         tasting.points += points
         tasting.user_votes += 1
         tasting.save()
+        activity = VoteActivity.create(tasting, user, points)
 
     def update_vote(self, points):
         points = int(points)
@@ -296,3 +307,4 @@ class Vote(Document):
         tasting = self.tasting
         tasting.points = tasting.points - old_points + self.points
         tasting.save()
+        activity = VoteActivity.create(tasting, self.user, points)
