@@ -14,6 +14,7 @@ from flask.ext.login import login_required, logout_user
 import support
 from models import User, Friendship, Activity, Local, Like, Vote
 from models import LikeActivity, connect_db, DislikeActivity, Tasting
+from models import CommentActivity, Comment
 from forms import ProfileForm, RegisterForm, LoginForm, LocalForm
 from forms import ResetPasswordForm, TastingForm
 from werkzeug import secure_filename
@@ -170,10 +171,11 @@ def get_profile(username):
         abort(404)
     image = visited_user.avatar
     friendship = Friendship.get_from_users([current_user, visited_user])
+    comments = Comment.objects(user=current_user.id, target=visited_user).order_by('-created').limit(10)
     activities = Activity.objects(creator=visited_user).order_by('-created').limit(10)
     return render_template(
         'profile.html', user=current_user, visited_user=visited_user,
-        activities=activities, friendship=friendship, image=image)
+        activities=activities, friendship=friendship, image=image, comments=comments)
 
 
 @app.route('/usuarios/<username>/solicitud', methods=['POST'])
@@ -243,9 +245,11 @@ def get_local_profile(slug):
     if not local:
         abort(404)
     like = Like.get_by_local_and_user(local, current_user)
+    comments = Comment.objects(user=current_user.id, target=local).order_by('-created').limit(10)
     activities = Activity.objects(target=local).order_by('-created').limit(10)
     return render_template('local_profile.html',
-        user=current_user, local=local, like=like, activities=activities)
+        user=current_user, local=local, like=like,
+        activities=activities, comments=comments)
 
 
 @app.route('/locales/<slug>/megusta', methods=['POST'])
@@ -286,14 +290,15 @@ def get_tasting_profile(slug):
 
     activities = Activity.objects(target=tasting).order_by('-created').limit(10)
     vote = Vote.objects(user=current_user.id, tasting=tasting.id).first()
+    comments = Comment.objects(user=current_user.id, target=tasting).order_by('-created').limit(10)
     if vote:
         return render_template('tasting_profile.html',
             user=current_user, tasting=tasting,
-            activities=activities, vote=vote)
+            activities=activities, vote=vote, comments=comments)
     else:
         return render_template('tasting_profile.html',
             user=current_user, tasting=tasting,
-            activities=activities, vote=None)
+            activities=activities, vote=None, comments=comments)
 
 
 @app.route('/degustaciones', methods=['GET'])
@@ -344,6 +349,46 @@ def post_vote(tasting_slug):
         vote = Vote.create_vote(user, tasting, points)
     return redirect(url_for(
         'get_tasting_profile', slug=tasting.slug))
+
+
+@app.route('/degustaciones/<tasting_slug>/comentar', methods=['POST'])
+@login_required
+def post_tasting_comment(tasting_slug):
+    message = request.form['message']
+    tasting = Tasting.get_by_slug(tasting_slug)
+    user = User.objects(username=current_user.username).first()
+    comment = Comment.create_comment(tasting, user, message)
+    return redirect(url_for('get_tasting_profile', slug=tasting_slug))
+
+
+@app.route('/locales/<local_slug>/comentar', methods=['POST'])
+@login_required
+def post_local_comment(local_slug):
+    message = request.form['message']
+    local = Local.get_by_slug(local_slug)
+    user = User.objects(username=current_user.username).first()
+    comment = Comment.create_comment(local, user, message)
+    return redirect(url_for('get_local_profile', slug=local_slug))
+
+
+@app.route('/usuarios/<username>/comentar', methods=['POST'])
+@login_required
+def post_user_comment(username):
+    message = request.form['message']
+    target_user = User.objects(username=username).first()
+    user = User.objects(username=current_user.username).first()
+    comment = Comment.create_comment(target_user, user, message)
+    return redirect(url_for('get_profile', username=username))
+
+
+@app.route('/comentar', methods=['POST'])
+@login_required
+def post_index_comment():
+    message = request.form['message']
+    user = User.objects(username=current_user.username).first()
+    comment = Comment.create_comment(user, user, message)
+    return redirect(url_for('get_index'))
+
 
 # USERS
 ################################################################################

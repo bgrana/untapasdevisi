@@ -88,6 +88,8 @@ class User(Document):
     def is_anonymous(self):
         return False
 
+    meta = {'allow_inheritance': True}
+
 
 class Friendship(Document):
     creator = ReferenceField('User')
@@ -191,6 +193,15 @@ class VoteActivity(Activity):
         return activity
 
 
+class CommentActivity(Activity):
+   
+    @staticmethod
+    def create(target, user, message):
+        activity = CommentActivity(target=target, creator=user, message=message)
+        activity.save()
+        return activity
+
+
 class Local(Document):
     name = StringField(required=True, unique=True)
     slug = StringField(required=True, unique=True)
@@ -226,6 +237,8 @@ class Local(Document):
     @staticmethod
     def search(q, n):
         return Local.objects(name__icontains=q).limit(5)
+
+    meta = {'allow_inheritance': True}
 
 
 class Like(Document):
@@ -283,6 +296,8 @@ class Tasting(Document):
     def slugify(name):
         return name.strip().lower().replace(' ', '-')
 
+    meta = {'allow_inheritance': True}
+
 
 class Vote(Document):
     user = ReferenceField('User')
@@ -308,3 +323,15 @@ class Vote(Document):
         tasting.points = tasting.points - old_points + self.points
         tasting.save()
         activity = VoteActivity.create(tasting, self.user, points)
+
+class Comment(Document):
+    message = StringField()
+    user = ReferenceField('User')
+    target = GenericReferenceField()
+    created = DateTimeField(default=datetime.datetime.now)
+
+    @staticmethod
+    def create_comment(target, user, message):
+        comment = Comment(user=user, target=target, message=message)
+        comment.save()
+        activity = CommentActivity.create(target, user, message)

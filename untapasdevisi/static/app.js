@@ -79,6 +79,18 @@ $(function() {
   $("img#chooser").click(function(){
     $("#image").trigger("click");
   });
+
+  $("#show-comment-btn").click(function() {
+    $("#comments-form").slideToggle(350);
+    if ($("#toggle-icon").attr("class") == "glyphicon glyphicon-plus") {
+      $("#toggle-icon").removeClass("glyphicon-plus");
+      $("#toggle-icon").addClass("glyphicon-minus");
+    }
+    else {
+      $("#toggle-icon").removeClass("glyphicon-minus");
+      $("#toggle-icon").addClass("glyphicon-plus");
+    }
+  })
 });
 
 function show_score(score) {
