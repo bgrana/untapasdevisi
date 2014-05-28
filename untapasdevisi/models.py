@@ -335,3 +335,8 @@ class Comment(Document):
         comment = Comment(user=user, target=target, message=message)
         comment.save()
         activity = CommentActivity.create(target, user, message)
+
+    @staticmethod
+    def search(user, target):
+        return Comment.objects.filter(
+            Q(user=user) | Q(target=target))

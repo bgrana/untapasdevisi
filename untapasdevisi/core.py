@@ -87,9 +87,10 @@ def ago_filter(date):
 def get_index():
     friends = Friendship.get_confirmed_from_user(current_user)
     user = User.objects(username=current_user.username).first()
+    comments = Comment.search(user=user, target=user).order_by('-created').limit(10)
     activities = Activity.search(current_user.id, user).order_by('-created').limit(10)
     return render_template('index.html', user=current_user,
-        friends=friends, activities=activities)
+        friends=friends, activities=activities, comments=comments)
 
 
 @app.route('/configuracion', methods=['GET'])
@@ -171,7 +172,8 @@ def get_profile(username):
         abort(404)
     image = visited_user.avatar
     friendship = Friendship.get_from_users([current_user, visited_user])
-    comments = Comment.objects(user=current_user.id, target=visited_user).order_by('-created').limit(10)
+
+    comments = Comment.search(user=visited_user, target=visited_user).order_by('-created').limit(10)
     activities = Activity.objects(creator=visited_user).order_by('-created').limit(10)
     return render_template(
         'profile.html', user=current_user, visited_user=visited_user,
@@ -245,7 +247,7 @@ def get_local_profile(slug):
     if not local:
         abort(404)
     like = Like.get_by_local_and_user(local, current_user)
-    comments = Comment.objects(user=current_user.id, target=local).order_by('-created').limit(10)
+    comments = Comment.objects(target=local).order_by('-created').limit(10)
     activities = Activity.objects(target=local).order_by('-created').limit(10)
     return render_template('local_profile.html',
         user=current_user, local=local, like=like,
@@ -290,15 +292,10 @@ def get_tasting_profile(slug):
 
     activities = Activity.objects(target=tasting).order_by('-created').limit(10)
     vote = Vote.objects(user=current_user.id, tasting=tasting.id).first()
-    comments = Comment.objects(user=current_user.id, target=tasting).order_by('-created').limit(10)
-    if vote:
-        return render_template('tasting_profile.html',
-            user=current_user, tasting=tasting,
-            activities=activities, vote=vote, comments=comments)
-    else:
-        return render_template('tasting_profile.html',
-            user=current_user, tasting=tasting,
-            activities=activities, vote=None, comments=comments)
+    comments = Comment.objects(target=tasting).order_by('-created').limit(10)
+    return render_template('tasting_profile.html',
+        user=current_user, tasting=tasting,
+        activities=activities, vote=vote, comments=comments)
 
 
 @app.route('/degustaciones', methods=['GET'])
