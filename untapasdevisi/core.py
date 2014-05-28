@@ -174,7 +174,7 @@ def get_profile(username):
     friendship = Friendship.get_from_users([current_user, visited_user])
 
     comments = Comment.search(user=visited_user, target=visited_user).order_by('-created').limit(10)
-    activities = Activity.objects(creator=visited_user).order_by('-created').limit(10)
+    activities = Activity.search(creator=visited_user, target=visited_user).order_by('-created').limit(10)
     return render_template(
         'profile.html', user=current_user, visited_user=visited_user,
         activities=activities, friendship=friendship, image=image, comments=comments)

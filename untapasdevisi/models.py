@@ -196,8 +196,8 @@ class VoteActivity(Activity):
 class CommentActivity(Activity):
    
     @staticmethod
-    def create(target, user, message):
-        activity = CommentActivity(target=target, creator=user, message=message)
+    def create(target, creator):
+        activity = CommentActivity(target=target, creator=creator)
         activity.save()
         return activity
 
@@ -334,7 +334,7 @@ class Comment(Document):
     def create_comment(target, user, message):
         comment = Comment(user=user, target=target, message=message)
         comment.save()
-        activity = CommentActivity.create(target, user, message)
+        activity = CommentActivity.create(target=target, creator=user)
 
     @staticmethod
     def search(user, target):
