@@ -7,7 +7,7 @@
     <div class="panel-body">
       <div class="form-group">
         <input type="file" class="hidden" id="image" name="image" />
-        <img class="img-thumbnail image avatar-jumbo" id="chooser" name="chooser" src="{{ image }}" />
+        <img class="img-thumbnail image avatar-jumbo" id="chooser" name="chooser" src="" alt="Haz click en el recuedro para elegir una imagen de perfil" />
       </div>
       <div class="form-group {% if form.name.errors %}has-error has-feedback{% endif %}">
         <input type="text" class="form-control" id="name" name="name" placeholder="Nombre del plato" value="{{ form.name.data }}" />
