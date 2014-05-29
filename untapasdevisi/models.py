@@ -296,6 +296,10 @@ class Tasting(Document):
     def slugify(name):
         return name.strip().lower().replace(' ', '-')
 
+    @staticmethod
+    def search(q, n):
+        return Local.objects(name__icontains=q).limit(5)
+
     meta = {'allow_inheritance': True}
 
 

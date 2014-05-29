@@ -528,7 +528,7 @@ def get_search():
         return render_template('search.html', user=current_user)
 
     typ = request.args.get('type', 'Users').capitalize()
-    if not typ in ['User', 'Local']:
+    if not typ in ['User', 'Local', 'Tasting']:
         typ = 'Local'
 
     if typ == 'User':
@@ -536,6 +536,9 @@ def get_search():
 
     if typ == 'Local':
         results = Local.search(q, 10)
+
+    if typ == 'Tasting':
+        results = Tasting.search(q, 10)
 
     return render_template('results.html', q=q, typ=typ,
         user=current_user, results=results)
@@ -557,6 +560,13 @@ def get_local_search():
     q = request.args.get('q')
     locals = Local.search(q, 5)
     return locals.to_json()
+
+
+@app.route('/api/search/tastings', methods=['GET'])
+def get_tasting_search():
+    q = request.args.get('q')
+    tastings = Tasting.search(q, 5)
+    return tastings.to_json()
 
 
 # ERROR HANDLERS

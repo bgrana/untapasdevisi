@@ -18,8 +18,17 @@ $(function() {
     }
   });
 
+  var tastings = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    remote: {
+      url: '../api/search/tastings?q=%QUERY'
+    }
+  });
+
   users.initialize();
   locals.initialize();
+  tastings.initialize();
 
   $('#search-bar').typeahead({
     hint: true,
@@ -43,13 +52,24 @@ $(function() {
       header: '<h3 class="section-name">Locales</h3>',
       suggestion: Handlebars.compile('{{name}}')
     }
+  },
+  {
+    name: 'tastings',
+    displayKey: 'name',
+    source: tastings.ttAdapter(),
+    templates: {
+      header: '<h3 class="section-name">Degustaciones</h3>',
+      suggestion: Handlebars.compile('{{name}}')
+    }
   });
 
   $('#search-bar').on('typeahead:selected', function(event, suggestion, dataset) {
       if (dataset == 'users') {
-          window.location.replace('/usuarios/' + suggestion.username)
+          window.location.replace('/usuarios/' + suggestion.username);
+      } else if (dataset == 'tastings') {
+          window.location.replace('/degustaciones/' + suggestion.slug);
       } else {
-          window.location.replace('/locales/' + suggestion.slug)
+          window.location.replace('/locales/' + suggestion.slug);
       }
   })
 
