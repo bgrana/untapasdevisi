@@ -9,7 +9,7 @@
       <ul class="list-group">
         <li class="list-group-item"><a href="/buscar?q={{q}}&type=Local"><span class="glyphicon glyphicon-glass"></span> Locales</a></li>
         <li class="list-group-item"><a href="/buscar?q={{q}}&type=User"><span class="glyphicon glyphicon-user"></span> Usuarios</a></li>
-        <li class="list-group-item"><a href="/buscar?q={{q}}&type=Tasting"><span class="glyphicon glyphicon-cake"></span> Degustaciones</a></li>
+        <li class="list-group-item"><a href="/buscar?q={{q}}&type=Tasting"><span class="glyphicon glyphicon-cutlery"></span> Degustaciones</a></li>
       </ul>
     </div>
   </div>
@@ -34,7 +34,7 @@
             <li class="list-group-item">
                 {% if typ == 'User'%}
                     <a href="{{ url_for('get_profile', username=r.username) }}">{{r.screen_name}} ({{r.username}})</a>
-                {% if typ == 'Tasting'%}
+                {% elif typ == 'Tasting'%}
                     <a href="{{ url_for('get_tasting_profile', slug=r.slug) }}">{{r.name}}</a>
                 {% else %}
                     <a href="{{ url_for('get_local_profile', slug=r.slug) }}">{{r.name}}</a>
