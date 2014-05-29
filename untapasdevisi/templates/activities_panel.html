@@ -1,24 +1,137 @@
 <div class="panel panel-default">
-    <div class="panel-heading">Actividades</div>
+    <div class="panel-heading">Actividades
+        <button id="show-comment-btn" class="btn btn-secondary pull-right"><p style="display:inline-block;">Añadir comentario</p><i id="toggle-icon" class="glyphicon glyphicon-plus" style="margin-left:7px;"></i></button>
+    </div>
+    <div id="comments-form" class="list-group" style="display:none;">
+        {% if tasting %}
+            <form method="POST" action="{{ url_for('post_tasting_comment', tasting_slug=tasting.slug) }}">
+                <div>
+                    <img src="{{ user.avatar }}" class="img-rounded image avatar pull-left" />
+                    <textarea class="form-comment" placeholder="Introduce tu comentario aquí..." id="message" name="message" rows="4" cols="121"></textarea>
+                </div>
+                <div class="panel-footer">
+                    <button type="submit" class="btn btn-primary pull-right">Enviar</button>
+                    <div class="clearfix"></div>
+                </div>
+            </form>
+        {% elif local %}
+            <form method="POST" action="{{ url_for('post_local_comment', local_slug=local.slug) }}">
+                <div>
+                    <img src="{{ user.avatar }}" class="img-rounded image avatar pull-left" />
+                    <textarea class="form-comment" placeholder="Introduce tu comentario aquí..." id="message" name="message" rows="4" cols="121"></textarea>
+                </div>
+                <div class="panel-footer">
+                    <button type="submit" class="btn btn-primary pull-right">Enviar</button>
+                    <div class="clearfix"></div>
+                </div>
+            </form>
+        {% elif visited_user %}
+            <form method="POST" action="{{ url_for('post_user_comment', username=visited_user.username) }}">
+                <div>
+                    <img src="{{ user.avatar }}" class="img-rounded image avatar pull-left" />
+                    <textarea class="form-comment" placeholder="Introduce tu comentario aquí..." id="message" name="message" rows="4" cols="121"></textarea>
+                </div>
+                <div class="panel-footer">
+                    <button type="submit" class="btn btn-primary pull-right">Enviar</button>
+                    <div class="clearfix"></div>
+                </div>
+            </form>
+        {% else %}
+            <form method="POST" action="{{ url_for('post_index_comment') }}">
+                <div>
+                    <img src="{{ user.avatar }}" class="img-rounded image avatar pull-left" />
+                    <textarea class="form-comment" placeholder="Introduce tu comentario aquí..." id="message" name="message" rows="4" cols="121"></textarea>
+                </div>
+                <div class="panel-footer">
+                    <button type="submit" class="btn btn-primary pull-right">Enviar</button>
+                    <div class="clearfix"></div>
+                </div>
+            </form>
+        {% endif %}
+    </div>
     {% if activities %}
         <ul class="list-group">
         {% for activity in activities %}
             <li class="list-group-item activity">
                 {% if activity._cls == 'Activity.FriendshipActivity' %}
                     <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
+                        <img src=" {{ activity.creator.avatar }}" class="img-circle image avatar-mini" />
                         {{ activity.creator.screen_name }}
                     </a> y
-                    <a href="{{ url_for('get_profile', username=activity.friend.username)}}">
-                        {{ activity.friend.screen_name }}
+                    <a href="{{ url_for('get_profile', username=activity.target.username)}}">
+                        <img src=" {{ activity.target.avatar }}" class="img-circle image avatar-mini" />
+                        {{ activity.target.screen_name }}
                     </a>
                     son ahora amigos
                 {% elif activity._cls == 'Activity.LikeActivity' %}
                     A <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
+                        <img src=" {{ activity.creator.avatar }}" class="img-circle image avatar-mini" />
                         {{ activity.creator.screen_name }}
                     </a> le gusta
-                    <a href="{{ url_for('get_local_profile', slug=activity.local.slug)}}">
-                        {{ activity.local.name }}
+                    <a href="{{ url_for('get_local_profile', slug=activity.target.slug)}}">
+                        {{ activity.target.name }}
                     </a>
+                {% elif activity._cls == 'Activity.DislikeActivity' %}
+                    A <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
+                        <img src=" {{ activity.creator.avatar }}" class="img-circle image avatar-mini">
+                        {{ activity.creator.screen_name }}
+                    </a> ya no le gusta
+                    <a href="{{ url_for('get_local_profile', slug=activity.target.slug)}}">
+                        {{ activity.target.name }}
+                    </a>
+                {% elif activity._cls == 'Activity.VoteActivity' %}
+                    <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
+                        <img src=" {{ activity.creator.avatar }}" class="img-circle image avatar-mini">
+                        {{ activity.creator.screen_name }}
+                    </a> ha puntuado el plato
+                    <a href="{{ url_for('get_tasting_profile', slug=activity.target.slug)}}">
+                        <img src=" {{ activity.target.avatar }}" class="img-circle image avatar-mini">
+                        {{ activity.target.name }}
+                    </a> con un {{ activity.points }}
+                {% elif activity._cls == 'Activity.CommentActivity' %}
+                    {% set comment = comments.next() %}
+                    {% if comment.target._cls == 'User' %}
+                        <div>
+                            <a href="{{ url_for('get_profile', username=activity.creator.username) }}">
+                                <img src=" {{ activity.creator.avatar }}" class="img-circle image avatar-mini">
+                                {{ comment.user.screen_name }}
+                            </a>
+                            {% if comment.target.username == comment.user.username %}
+                                ha actualizado su estado a: 
+                            {% else %}
+                                ha comentado en el perfil de
+                                <a href="{{ url_for('get_profile', username=activity.target.username) }}">
+                                    <img src=" {{ activity.target.avatar }}" class="img-circle image avatar-mini">
+                                    {{ comment.target.screen_name }}
+                                </a>
+                            {% endif %} 
+                        </div>
+                        {{ comment.message }}
+                    {% elif comment.target._cls == 'Tasting' %}
+                        <div>
+                            <a href="{{ url_for('get_profile', username=activity.creator.username) }}">
+                                <img src=" {{ activity.creator.avatar }}" class="img-circle image avatar-mini">
+                                {{ activity.creator.screen_name }}
+                            </a> ha dado al plato
+                            <a href="{{ url_for('get_tasting_profile', slug=activity.target.slug) }}">
+                                <img src=" {{ activity.target.avatar }}" class="img-circle image avatar-mini">
+                                {{ activity.target.name }}
+                            </a> la siguiente valoración:
+                        </div>
+                        {{ comment.message }}
+                    {% elif comment.target._cls == 'Local' %}
+                        <div>
+                            <a href="{{ url_for('get_profile', username=activity.creator.username)}}">
+                                <img src=" {{ activity.creator.avatar }}" class="img-circle image avatar-mini">
+                                {{ activity.creator.screen_name }}
+                            </a> ha escrito un comentario sobre 
+                            <a href="{{ url_for('get_local_profile', slug=activity.target.slug) }}">
+                                <img src=" {{ activity.target.avatar }}" class="img-circle image avatar-mini">
+                                {{ activity.target.name }}
+                            </a>
+                        </div>
+                        {{ comment.message }}
+                    {% endif %}
                 {% endif %}
                 <span class="ago">· Hace {{ activity.created | ago }}</span>
             </li>

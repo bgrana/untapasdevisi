@@ -3,20 +3,20 @@
 {% block body %}
 <form role="form" method="POST" enctype="multipart/form-data">
   <div class="panel panel-default center">
-    <div class="panel-heading">Registrar local</div>
-    <div class="form-group">
+    <div class="panel-heading">Registrar degustación</div>
+    <div class="panel-body">
+      <div class="form-group">
         <input type="file" class="hidden" id="image" name="image" />
         <img class="img-thumbnail image avatar-jumbo" id="chooser" name="chooser" src="" alt="Haz click en el recuedro para elegir una imagen de perfil" />
       </div>
-    <div class="panel-body">
       <div class="form-group {% if form.name.errors %}has-error has-feedback{% endif %}">
-        <input type="text" class="form-control" id="name" name="name" placeholder="Nombre del local" value="{{ form.name.data }}" />
+        <input type="text" class="form-control" id="name" name="name" placeholder="Nombre del plato" value="{{ form.name.data }}" />
       </div>
-      <div class="form-group {% if form.location.errors %}has-error has-feedback{% endif %}">
-        <input type="text" class="form-control" id="location" name="location" placeholder="Dirección del local" value="{{ form.location.data }}" />
+      <div class="form-group {% if form.local_name.errors %}has-error has-feedback{% endif %}">
+        <input type="text" class="form-control" id="local_name" name="local_name" placeholder="Local donde se sirve" value="{{ form.local_name.data }}" />
       </div>
-      <div class="form-group {% if form.description.errors %}has-error has-feedback{% endif %}">
-        <textarea class="form-control" id="description" name="description" maxlength="240" placeholder="Breve descripción del local (opcional)" rows="7"></textarea>
+      <div class="form-group {% if form.recipe.errors %}has-error has-feedback{% endif %}">
+        <textarea class="form-control" id="recipe" name="recipe" maxlength="240" placeholder="Receta (opcional)" rows="7"></textarea>
       </div>
       {% if form.errors %}
       <div class="form-error">
@@ -30,7 +30,7 @@
       {% endif %}
     </div>
     <div class="panel-footer">
-      <button type="submit" class="btn btn-primary pull-right">Crear local</button>
+      <button type="submit" class="btn btn-primary pull-right">Crear degustación</button>
       <div class="clearfix"></div>
     </div>
   </div>

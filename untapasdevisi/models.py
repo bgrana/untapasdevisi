@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-from mongoengine import connect, Document, StringField
+from mongoengine import connect, Document, StringField, ListField
 from mongoengine import ReferenceField, DateTimeField, BooleanField, Q
+from mongoengine import GenericReferenceField, GenericEmbeddedDocumentField
+from mongoengine import EmbeddedDocument, IntField
 from passlib.hash import bcrypt
 
+IMG_PATH = 'images'
 
 def connect_db(dbname):
     connect(dbname)
@@ -19,6 +22,7 @@ class User(Document):
     created = DateTimeField(default=datetime.datetime.now)
     activated = BooleanField()
     password_hash = StringField()
+    avatar = StringField()
 
     @staticmethod
     def authenticate(username, password):
@@ -32,6 +36,7 @@ class User(Document):
             username=form.username.data, firstname=form.firstname.data,
             lastname=form.lastname.data, email=form.email.data)
         user.password_hash = bcrypt.encrypt(form.password.data)
+        user.avatar = '/' + IMG_PATH + '/no_avatar.jpg'
         user.save()
         return user
 
@@ -83,6 +88,8 @@ class User(Document):
     def is_anonymous(self):
         return False
 
+    meta = {'allow_inheritance': True}
+
 
 class Friendship(Document):
     creator = ReferenceField('User')
@@ -126,13 +133,8 @@ class Friendship(Document):
         self.confirmed = True
         self.save()
 
-        creator_activity = FriendshipActivity(
-            creator=self.creator.id, friend=self.friend.id)
-        creator_activity.save()
-
-        friend_activity = FriendshipActivity(
-            creator=self.friend.id, friend=self.creator.id)
-        friend_activity.save()
+        friend_activity = FriendshipActivity.create(
+            creator=self.creator, friend=self.friend)
 
     def get_friend(self, user):
         if user == self.creator:
@@ -143,21 +145,59 @@ class Friendship(Document):
 
 class Activity(Document):
     creator = ReferenceField('User')
+    target = GenericReferenceField()
     created = DateTimeField(default=datetime.datetime.now)
+
+    @staticmethod
+    def search(creator, target):
+        return Activity.objects.filter(
+            Q(creator=creator) | Q(target=target))
 
     meta = {'allow_inheritance': True}
 
 
 class FriendshipActivity(Activity):
-    friend = ReferenceField('User')
+    
+    @staticmethod
+    def create(creator, friend):
+        activity = FriendshipActivity(creator=creator, target=friend)
+        activity.save()
+        return activity
 
 
 class LikeActivity(Activity):
-    local = ReferenceField('Local')
 
     @staticmethod
     def create(local, user):
-        activity = LikeActivity(creator=user.id, local=local.id)
+        activity = LikeActivity(creator=user, target=local)
+        activity.save()
+        return activity
+
+
+class DislikeActivity(Activity):
+
+    @staticmethod
+    def create(local, user):
+        activity = DislikeActivity(creator=user, target=local)
+        activity.save()
+        return activity
+
+
+class VoteActivity(Activity):
+    points = IntField()
+
+    @staticmethod
+    def create(tasting, user, points):
+        activity = VoteActivity(creator=user, target=tasting, points=points)
+        activity.save()
+        return activity
+
+
+class CommentActivity(Activity):
+   
+    @staticmethod
+    def create(target, creator):
+        activity = CommentActivity(target=target, creator=creator)
         activity.save()
         return activity
 
@@ -167,17 +207,21 @@ class Local(Document):
     slug = StringField(required=True, unique=True)
     location = StringField(required=True)
     description = StringField()
+    avatar = StringField()
     created = DateTimeField(default=datetime.datetime.now)
 
     @staticmethod
-    def create_local(name, location, description=""):
+    def create_local(name, location, description="",
+        avatar='/'+IMG_PATH+'/no_local_avatar.png'):
+        
         name = name
         slug = Local.slugify(name)
         local = Local(
             name=name,
             slug=slug,
             location=location,
-            description=description
+            description=description,
+            avatar=avatar
         )
         local.save()
         return local
@@ -193,6 +237,8 @@ class Local(Document):
     @staticmethod
     def search(q, n):
         return Local.objects(name__icontains=q).limit(5)
+
+    meta = {'allow_inheritance': True}
 
 
 class Like(Document):
@@ -210,3 +256,87 @@ class Like(Document):
     def get_by_local_and_user(local, user):
         a = Like.objects(Q(local=local.id) & Q(user=user.id)).first()
         return a
+
+
+class Tasting(Document):
+    name = StringField(required=True, unique=True)
+    slug = StringField(required=True, unique=True)
+    local_name = StringField(required=True)
+    local_slug = StringField(required=True)
+    recipe = StringField()
+    avatar = StringField()
+    points = IntField(default=0)
+    user_votes = IntField(default=0)
+    created = DateTimeField(default=datetime.datetime.now)
+
+    @staticmethod
+    def create_tasting(name, local_name, recipe="",
+        avatar='/'+IMG_PATH+'/no_tasting_avatar.png'):
+        
+        name = name
+        slug = Tasting.slugify(name)
+        local_name = local_name
+        local_slug = Tasting.slugify(local_name)
+        tasting = Tasting(
+            name=name,
+            slug=slug,
+            local_name=local_name,
+            local_slug=local_slug,
+            recipe=recipe,
+            avatar=avatar
+        )
+        tasting.save()
+        return tasting
+
+    @staticmethod
+    def get_by_slug(slug):
+        return Tasting.objects(slug=slug).first()
+
+    @staticmethod
+    def slugify(name):
+        return name.strip().lower().replace(' ', '-')
+
+    meta = {'allow_inheritance': True}
+
+
+class Vote(Document):
+    user = ReferenceField('User')
+    tasting = ReferenceField('Tasting')
+    points = IntField()
+
+    @staticmethod
+    def create_vote(user, tasting, points):
+        points = int(points)
+        vote = Vote(user=user, tasting=tasting, points=points)
+        vote.save()
+        tasting.points += points
+        tasting.user_votes += 1
+        tasting.save()
+        activity = VoteActivity.create(tasting, user, points)
+
+    def update_vote(self, points):
+        points = int(points)
+        old_points = self.points
+        self.points = points
+        self.save()
+        tasting = self.tasting
+        tasting.points = tasting.points - old_points + self.points
+        tasting.save()
+        activity = VoteActivity.create(tasting, self.user, points)
+
+class Comment(Document):
+    message = StringField()
+    user = ReferenceField('User')
+    target = GenericReferenceField()
+    created = DateTimeField(default=datetime.datetime.now)
+
+    @staticmethod
+    def create_comment(target, user, message):
+        comment = Comment(user=user, target=target, message=message)
+        comment.save()
+        activity = CommentActivity.create(target=target, creator=user)
+
+    @staticmethod
+    def search(user, target):
+        return Comment.objects.filter(
+            Q(user=user) | Q(target=target))

@@ -7,18 +7,25 @@ import redis
 from babel.dates import format_date, format_timedelta
 
 from flask import Flask, request, render_template, redirect, url_for
-from flask import abort, flash
+from flask import abort, flash, send_from_directory
 from flask.ext.login import LoginManager, login_user, current_user
 from flask.ext.login import login_required, logout_user
 
 import support
-from models import User, Friendship, Activity, Local, Like, LikeActivity, connect_db
-from forms import ProfileForm, RegisterForm, LoginForm, LocalForm, ResetPasswordForm
+from models import User, Friendship, Activity, Local, Like, Vote
+from models import LikeActivity, connect_db, DislikeActivity, Tasting
+from models import CommentActivity, Comment
+from forms import ProfileForm, RegisterForm, LoginForm, LocalForm
+from forms import ResetPasswordForm, TastingForm
+from werkzeug import secure_filename
+import os
 
 # Setup
 ###############################################################################
 
 app = Flask(__name__)
+IMG_PATH = 'images'
+UPLOAD_FOLDER = os.path.join(app.root_path, IMG_PATH)
 app.config.from_object(__name__)
 app.config.update({
     'DEBUG': True,
@@ -27,7 +34,9 @@ app.config.update({
     'MAILGUN_API_USER': 'sandbox74944',
     'MAILGUN_API_KEY': 'key-84mxu54004c5y47zgym0z-d34jnsvl18',
     'MONGODB_DB_NAME': 'untapasdevisi',
-    'REDIS_URL': 'localhost'
+    'REDIS_URL': 'localhost',
+    'UPLOAD_FOLDER': UPLOAD_FOLDER,
+    'ALLOWED_EXTENSIONS': set(['jpg', 'png'])
 })
 
 postman = support.Postman(
@@ -77,9 +86,11 @@ def ago_filter(date):
 @login_required
 def get_index():
     friends = Friendship.get_confirmed_from_user(current_user)
-    activities = Activity.objects(creator=current_user.id).order_by('-created').limit(10)
+    user = User.objects(username=current_user.username).first()
+    comments = Comment.search(user=user, target=user).order_by('-created').limit(10)
+    activities = Activity.search(current_user.id, user).order_by('-created').limit(10)
     return render_template('index.html', user=current_user,
-        friends=friends, activities=activities)
+        friends=friends, activities=activities, comments=comments)
 
 
 @app.route('/configuracion', methods=['GET'])
@@ -92,7 +103,8 @@ def get_settings():
         lastname=current_user.lastname,
         location=current_user.location
     )
-    return render_template('settings.html', user=current_user, form=form)
+    image = current_user.avatar
+    return render_template('settings.html', user=current_user, form=form, image=image)
 
 
 @app.route('/configuracion', methods=['POST'])
@@ -102,7 +114,36 @@ def post_settings():
     if form.validate():
         current_user.update(form)
         flash(u'Perfil actualizado correctamente', 'success')
-    return render_template('settings.html', user=current_user, form=form)
+    return redirect(url_for('get_settings'))
+
+
+@app.route('/upload', methods=['POST'])
+@login_required
+def upload():
+    file = request.files['image']
+    if not file:
+        flash(u'No has seleccionado ninguna imagen','warning')
+        return redirect(url_for('get_settings'))
+    filename = secure_filename(file.filename)
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    user = User.objects(username=current_user.username).first()
+    user.avatar = url_for('uploaded_file', filename=filename)
+    user.save()
+    flash(u'Foto de perfil actualizada', 'success')
+    form = ProfileForm(
+        username=current_user.username,
+        email=current_user.email,
+        firstname=current_user.firstname,
+        lastname=current_user.lastname,
+        location=current_user.location
+    )
+    return redirect(url_for('get_settings'))
+
+
+@app.route('/images/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'],
+                               filename)
 
 
 @app.route('/solicitudes', methods=['GET'])
@@ -129,11 +170,14 @@ def get_profile(username):
     visited_user = User.objects(username=username).first()
     if not visited_user:
         abort(404)
+    image = visited_user.avatar
     friendship = Friendship.get_from_users([current_user, visited_user])
-    activities = Activity.objects(creator=visited_user).order_by('-created').limit(10)
+
+    comments = Comment.search(user=visited_user, target=visited_user).order_by('-created').limit(10)
+    activities = Activity.search(creator=visited_user, target=visited_user).order_by('-created').limit(10)
     return render_template(
         'profile.html', user=current_user, visited_user=visited_user,
-        activities=activities, friendship=friendship)
+        activities=activities, friendship=friendship, image=image, comments=comments)
 
 
 @app.route('/usuarios/<username>/solicitud', methods=['POST'])
@@ -158,17 +202,15 @@ def post_remove_friend(username):
         abort(404)
 
     friendship.delete()
-
     return redirect(url_for('get_profile', username=user.username))
 
-# LOCALS
-################################################################################
 
 @app.route('/locales', methods=['GET'])
 @login_required
 def get_locals():
     form = LocalForm(name='', adrress='')
     return render_template('locals.html', user=current_user, form=form)
+
 
 @app.route('/locales', methods=['POST'])
 @login_required
@@ -179,11 +221,22 @@ def post_locals():
         return render_template(
             'locals.html', user=current_user, error=True, form=form)
 
-    local = Local.create_local(
-        name=form.name.data,
-        location=form.location.data,
-        description=form.description.data
-    )
+    file = request.files['image']
+    if not file:
+        local = Local.create_local(
+            name=form.name.data,
+            location=form.location.data,
+            description=form.description.data
+        )
+    else:
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        local = Local.create_local(
+            name=form.name.data,
+            location=form.location.data,
+            description=form.description.data,
+            avatar=url_for('uploaded_file', filename=filename)
+        )
     return redirect(url_for('get_local_profile', slug=local.slug))
 
 
@@ -194,9 +247,11 @@ def get_local_profile(slug):
     if not local:
         abort(404)
     like = Like.get_by_local_and_user(local, current_user)
-    activities = LikeActivity.objects(local=local.id).order_by('-created').limit(10)
+    comments = Comment.objects(target=local).order_by('-created').limit(10)
+    activities = Activity.objects(target=local).order_by('-created').limit(10)
     return render_template('local_profile.html',
-        user=current_user, local=local, like=like, activities=activities)
+        user=current_user, local=local, like=like,
+        activities=activities, comments=comments)
 
 
 @app.route('/locales/<slug>/megusta', methods=['POST'])
@@ -205,9 +260,135 @@ def post_local_like(slug):
     local = Local.get_by_slug(slug)
     if not local:
         abort(404)
-    like = Like.create(local, current_user)
+
+    user = User.objects(username=current_user.username).first()
+    like = Like.create(local, user)
     return redirect(url_for('get_local_profile', slug=local.slug))
 
+
+@app.route('/locales/<slug>/nomegusta', methods=['POST'])
+@login_required
+def post_local_dislike(slug):
+    local = Local.get_by_slug(slug)
+    if not local:
+        abort(404)
+
+    like = Like.get_by_local_and_user(local, current_user)
+    if not like:
+        abort(404)
+
+    user = User.objects(username=current_user.username).first()
+    DislikeActivity.create(local, user)
+    like.delete()
+    return redirect(url_for('get_local_profile', slug=local.slug))
+
+
+@app.route('/degustaciones/<slug>', methods=['GET'])
+@login_required
+def get_tasting_profile(slug):
+    tasting = Tasting.get_by_slug(slug)
+    if not tasting:
+        abort(404)
+
+    activities = Activity.objects(target=tasting).order_by('-created').limit(10)
+    vote = Vote.objects(user=current_user.id, tasting=tasting.id).first()
+    comments = Comment.objects(target=tasting).order_by('-created').limit(10)
+    return render_template('tasting_profile.html',
+        user=current_user, tasting=tasting,
+        activities=activities, vote=vote, comments=comments)
+
+
+@app.route('/degustaciones', methods=['GET'])
+@login_required
+def get_tastings():
+    form = TastingForm()
+    return render_template('tastings.html', form=form, user=current_user)
+
+
+@app.route('/degustaciones', methods=['POST'])
+@login_required
+def post_tastings():
+    form = TastingForm(request.form)
+
+    if not form.validate():
+        return render_template(
+            'tastings.html', user=current_user, error=True, form=form)
+
+    file = request.files['image']
+    if not file:
+        tasting = Tasting.create_tasting(
+        name=form.name.data,
+        local_name=form.local_name.data,
+        recipe=form.recipe.data
+        )
+    else:
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        tasting = Tasting.create_tasting(
+            name=form.name.data,
+            local_name=form.local_name.data,
+            recipe=form.recipe.data,
+            avatar=url_for('uploaded_file', filename=filename)
+        )
+    return redirect(url_for('get_tasting_profile', slug=tasting.slug))
+
+
+@app.route('/degustaciones/<tasting_slug>/votar', methods=['POST'])
+@login_required
+def post_vote(tasting_slug):
+    user = User.objects(username=current_user.username).first()
+    tasting = Tasting.get_by_slug(tasting_slug)
+    points = request.form['points']
+    vote = Vote.objects(user=user.id, tasting=tasting.id).first()
+    if vote:
+        vote.update_vote(points)
+    else:
+        vote = Vote.create_vote(user, tasting, points)
+    return redirect(url_for(
+        'get_tasting_profile', slug=tasting.slug))
+
+
+@app.route('/degustaciones/<tasting_slug>/comentar', methods=['POST'])
+@login_required
+def post_tasting_comment(tasting_slug):
+    message = request.form['message']
+    tasting = Tasting.get_by_slug(tasting_slug)
+    user = User.objects(username=current_user.username).first()
+    comment = Comment.create_comment(tasting, user, message)
+    return redirect(url_for('get_tasting_profile', slug=tasting_slug))
+
+
+@app.route('/locales/<local_slug>/comentar', methods=['POST'])
+@login_required
+def post_local_comment(local_slug):
+    message = request.form['message']
+    local = Local.get_by_slug(local_slug)
+    user = User.objects(username=current_user.username).first()
+    comment = Comment.create_comment(local, user, message)
+    return redirect(url_for('get_local_profile', slug=local_slug))
+
+
+@app.route('/usuarios/<username>/comentar', methods=['POST'])
+@login_required
+def post_user_comment(username):
+    message = request.form['message']
+    target_user = User.objects(username=username).first()
+    user = User.objects(username=current_user.username).first()
+    comment = Comment.create_comment(target_user, user, message)
+    return redirect(url_for('get_profile', username=username))
+
+
+@app.route('/comentar', methods=['POST'])
+@login_required
+def post_index_comment():
+    message = request.form['message']
+    user = User.objects(username=current_user.username).first()
+    comment = Comment.create_comment(user, user, message)
+    return redirect(url_for('get_index'))
+
+
+# USERS
+################################################################################
 
 @app.route('/entrar', methods=['GET'])
 def get_login():
@@ -244,7 +425,6 @@ def post_register():
         return render_template('register.html', error=True, form=form)
 
     user = User.register(form)
-
     key = vault.put(user.id, 60*60*24)
     postman.send_validation_email(user, key)
 
@@ -337,6 +517,8 @@ def get_resend():
         flash(u"Su cuenta ya se encuentra validada.", 'danger')
     return redirect(url_for('get_index'))
 
+# SEARCH
+################################################################################
 
 @app.route('/buscar', methods=['GET'])
 @login_required
