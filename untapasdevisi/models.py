@@ -298,7 +298,7 @@ class Tasting(Document):
 
     @staticmethod
     def search(q, n):
-        return Local.objects(name__icontains=q).limit(5)
+        return Tasting.objects(name__icontains=q).limit(5)
 
     meta = {'allow_inheritance': True}
 
