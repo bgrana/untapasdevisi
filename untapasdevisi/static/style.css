@@ -127,8 +127,8 @@ a:hover {
 
 .form-comment {
     border: 1px solid #bdc7d8;
-    margin-left: 3px;
-    margin-top: 3px;
+    width: 85%;
+    margin-left: 4px;
     box-shadow: none;
     border-radius: 3;
 }

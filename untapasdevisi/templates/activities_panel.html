@@ -7,7 +7,7 @@
             <form method="POST" action="{{ url_for('post_tasting_comment', tasting_slug=tasting.slug) }}">
                 <div>
                     <img src="{{ user.avatar }}" class="img-rounded image avatar pull-left" />
-                    <textarea class="form-comment" placeholder="Introduce tu comentario aquí..." id="message" name="message" rows="4" cols="121"></textarea>
+                    <textarea class="form-comment" placeholder="Introduce tu comentario aquí..." id="message" name="message" rows="4"></textarea>
                 </div>
                 <div class="panel-footer">
                     <button type="submit" class="btn btn-primary pull-right">Enviar</button>
@@ -18,7 +18,7 @@
             <form method="POST" action="{{ url_for('post_local_comment', local_slug=local.slug) }}">
                 <div>
                     <img src="{{ user.avatar }}" class="img-rounded image avatar pull-left" />
-                    <textarea class="form-comment" placeholder="Introduce tu comentario aquí..." id="message" name="message" rows="4" cols="121"></textarea>
+                    <textarea class="form-comment" placeholder="Introduce tu comentario aquí..." id="message" name="message" rows="4"></textarea>
                 </div>
                 <div class="panel-footer">
                     <button type="submit" class="btn btn-primary pull-right">Enviar</button>
@@ -29,7 +29,7 @@
             <form method="POST" action="{{ url_for('post_user_comment', username=visited_user.username) }}">
                 <div>
                     <img src="{{ user.avatar }}" class="img-rounded image avatar pull-left" />
-                    <textarea class="form-comment" placeholder="Introduce tu comentario aquí..." id="message" name="message" rows="4" cols="121"></textarea>
+                    <textarea class="form-comment" placeholder="Introduce tu comentario aquí..." id="message" name="message" rows="4"></textarea>
                 </div>
                 <div class="panel-footer">
                     <button type="submit" class="btn btn-primary pull-right">Enviar</button>
@@ -40,7 +40,7 @@
             <form method="POST" action="{{ url_for('post_index_comment') }}">
                 <div>
                     <img src="{{ user.avatar }}" class="img-rounded image avatar pull-left" />
-                    <textarea class="form-comment" placeholder="Introduce tu comentario aquí..." id="message" name="message" rows="4" cols="121"></textarea>
+                    <textarea class="form-comment" placeholder="Introduce tu comentario aquí..." id="message" name="message" rows="4"></textarea>
                 </div>
                 <div class="panel-footer">
                     <button type="submit" class="btn btn-primary pull-right">Enviar</button>
