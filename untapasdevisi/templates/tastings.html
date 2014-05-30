@@ -13,7 +13,7 @@
         <input type="text" class="form-control" id="name" name="name" placeholder="Nombre del plato" value="{{ form.name.data }}" />
       </div>
       <div class="form-group {% if form.local_name.errors %}has-error has-feedback{% endif %}">
-        <input type="text" class="form-control" id="local_name" name="local_name" placeholder="Local donde se sirve" value="{{ form.local_name.data }}" />
+        <input type="text" class="form-control" data-provide="typeahead" id="local_name" name="local_name" placeholder="Local donde se sirve" value="{{ form.local_name.data }}" />
       </div>
       <div class="form-group {% if form.recipe.errors %}has-error has-feedback{% endif %}">
         <textarea class="form-control" id="recipe" name="recipe" maxlength="240" placeholder="Receta (opcional)" rows="7"></textarea>

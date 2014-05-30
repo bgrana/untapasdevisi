@@ -81,7 +81,7 @@ $(function() {
   });
 
 
-  $('#search-local').typeahead({
+  $('#local_name').typeahead({
     hint: true,
     highlight: true,
     minLength: 1
@@ -91,7 +91,6 @@ $(function() {
     displayKey: 'name',
     source: locals.ttAdapter(),
     templates: {
-      header: '<h3 class="section-name">Locales</h3>',
       suggestion: Handlebars.compile('{{name}}')
     }
   });
