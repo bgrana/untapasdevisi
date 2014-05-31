@@ -118,6 +118,18 @@ $(function() {
   $("#tasting-photo").change(function() {
     $("#submit-tasting-photo").click();
   });
+
+  $("#search-bar").focus(function() {
+    $("#search-container").animate({
+      width: "100%"
+    });
+  });
+
+  $("#search-bar").blur(function() {
+    $("#search-container").animate({
+      width: "70%"
+    });
+  });
 });
 
 function show_score(score) {
