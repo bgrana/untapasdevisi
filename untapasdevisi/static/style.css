@@ -508,3 +508,39 @@ a:hover {
     text-indent:-9000px;
     z-index:1
 }
+
+.three-or-less {
+    background-color: #ff3300;
+    border-radius: 3px;
+    padding: 2px;
+    margin-top: 5px;
+    color: black;
+}
+
+.three-to-five {
+    background-color: #ff9900;
+    border-radius: 3px;
+    padding: 2px;
+    margin-top: 5px;
+}
+
+.five-to-seven {
+    background-color: #ffff00;
+    border-radius: 3px;
+    padding: 2px;
+    margin-top: 5px;
+}
+
+.seven-to-nine {
+    background-color: #ccff33;
+    border-radius: 3px;
+    padding: 2px;
+    margin-top: 5px;
+}
+
+.nine-or-more {
+    background-color: #66ff33;
+    border-radius: 3px;
+    padding: 2px;
+    margin-top: 5px;
+}

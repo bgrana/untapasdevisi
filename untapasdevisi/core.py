@@ -89,8 +89,9 @@ def get_index():
     user = User.objects(username=current_user.username).first()
     comments = Comment.search(user=user, target=user).order_by('-created').limit(10)
     activities = Activity.search(current_user.id, user).order_by('-created').limit(10)
+    tastings = Tasting.objects().order_by('-mean_score').limit(10)
     return render_template('index.html', user=current_user,
-        friends=friends, activities=activities, comments=comments)
+        friends=friends, activities=activities, comments=comments, tastings=tastings)
 
 
 @app.route('/configuracion', methods=['GET'])

@@ -4,7 +4,7 @@ import datetime
 from mongoengine import connect, Document, StringField, ListField
 from mongoengine import ReferenceField, DateTimeField, BooleanField, Q
 from mongoengine import GenericReferenceField, GenericEmbeddedDocumentField
-from mongoengine import EmbeddedDocument, IntField
+from mongoengine import EmbeddedDocument, IntField, FloatField
 from passlib.hash import bcrypt
 
 IMG_PATH = 'images'
@@ -270,6 +270,7 @@ class Tasting(Document):
     taste = StringField()
     points = IntField(default=0)
     user_votes = IntField(default=0)
+    mean_score = FloatField(default=0.0)
     created = DateTimeField(default=datetime.datetime.now)
 
     @staticmethod
@@ -286,7 +287,7 @@ class Tasting(Document):
             slug=slug,
             local_name=local_name,
             local_slug=local_slug,
-            recipe=recipe,
+            description=description,
             avatar=avatar,
             taste=taste,
             origin=origin
@@ -321,6 +322,8 @@ class Vote(Document):
         vote.save()
         tasting.points += points
         tasting.user_votes += 1
+        tasting.mean_score = float(tasting.points) / float(tasting.user_votes)
+        print tasting.mean_score
         tasting.save()
         activity = VoteActivity.create(tasting, user, points)
 
@@ -331,6 +334,8 @@ class Vote(Document):
         self.save()
         tasting = self.tasting
         tasting.points = tasting.points - old_points + self.points
+        tasting.mean_score = float(tasting.points) / float(tasting.user_votes)
+        print tasting.mean_score
         tasting.save()
         activity = VoteActivity.create(tasting, self.user, points)
 

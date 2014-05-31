@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<div class="row">
+<div class="row-fluid">
   <div class="col-md-3">
     <div class="panel panel-default">
     {% if friends %}
@@ -16,7 +16,25 @@
         {% endfor %}
     {% else %}
         <div class="panel-heading">Amigos</div>
-        <div class="panel-body">Aun no tienes ningún amigo</div>
+        <div class="panel-body">Aún no tienes ningún amigo</div>
+    {% endif %}
+    </div>
+    <div class="panel panel-default">
+    {% if tastings %}
+      <div class="panel-heading">10 mejores degustaciones</div>
+      <ul class="list-group">
+        {% for tasting in tastings %}
+        <li class="list-group-item">
+          <a href="{{ url_for('get_tasting_profile', slug=tasting.slug) }}">
+            <img src="{{ tasting.avatar }}" class="img-circle image avatar-mini" />
+            {{ tasting.name }} <p class="pull-right {% if tasting.mean_score <= 3.0 %}three-or-less{% elif tasting.mean_score <= 5.0 %}three-to-five{% elif tasting.mean_score <= 7.0 %}five-to-seven{% elif tasting.mean_score < 9.0 %}seven-to-nine{% elif tasting.mean_score <= 10.0 %}nine-or-more{% endif %}">{{ tasting.mean_score }}</p>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="panel-heading">10 mejores degustaciones</div>
+      <div class="panel-body">Aún no hay ninguna degustación</div>
     {% endif %}
     </div>
   </div>
