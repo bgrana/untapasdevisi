@@ -224,7 +224,7 @@ a:hover {
 */
 
 .search-container {
-  width: 100%;
+  width: 70%;
 }
 
 .search-container .form-control {
@@ -366,6 +366,7 @@ a:hover {
     height: 25px;
     margin-right: 0px;
 }
+
 
 /* Votes
 -----------------------------------------------------------------------------
@@ -522,6 +523,7 @@ a:hover {
     border-radius: 3px;
     padding: 2px;
     margin-top: 5px;
+    color: black;
 }
 
 .five-to-seven {
@@ -529,6 +531,7 @@ a:hover {
     border-radius: 3px;
     padding: 2px;
     margin-top: 5px;
+    color: black;
 }
 
 .seven-to-nine {
@@ -536,6 +539,7 @@ a:hover {
     border-radius: 3px;
     padding: 2px;
     margin-top: 5px;
+    color: black;
 }
 
 .nine-or-more {
@@ -543,4 +547,5 @@ a:hover {
     border-radius: 3px;
     padding: 2px;
     margin-top: 5px;
+    color: black;
 }
