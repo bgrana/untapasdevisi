@@ -18,14 +18,26 @@
           <a class="navbar-brand" href="/">UntapasDevisi</a>
         </div>
         {% if user %}
-        <ul class="nav navbar-nav">
-          <li><a href="{{ url_for('get_locals') }}">Nuevo local</a></li>
-          <li><a href="{{ url_for('get_tastings') }}"> Nueva degustacion</a></li>
+        <ul class="nav navbar-nav" style="padding-left:40px;">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <i class ="glyphicon glyphicon-plus"></i> Crear
+              <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="{{ url_for('get_locals') }}">
+                <i class ="glyphicon glyphicon-glass"></i> Local
+              </a></li>
+              <li><a href="{{ url_for('get_tastings') }}">
+                <i class="glyphicon glyphicon-cutlery "></i> Degustacion
+              </a></li>
+            </ul>
+          </li>
         </ul>
 
 
-        <div class="col-xs-5">
-          <form class="navbar-form" id="search" role="search" method="GET" action="/buscar">
+        <div class="col-xs-5" style="padding-left:0px;">
+          <form class="navbar-form" id="search" role="search" method="GET" action="/buscar" style="padding-left:0px;">
               <div class="input-group search-container" id="search-container">
                   <input id="search-bar" class="form-control" type="text" name="q"
                   data-provide="typeahead" placeholder="Busca personas, degustaciones y locales">
