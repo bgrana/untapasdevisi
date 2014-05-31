@@ -392,6 +392,18 @@ def post_index_comment():
     return redirect(url_for('get_index'))
 
 
+@app.route('/degustaciones/<slug>/subir-foto', methods=['POST'])
+@login_required
+def post_tasting_photo(slug):
+    file = request.files['tasting-photo']
+    filename = secure_filename(file.filename)
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    tasting = Tasting.objects(slug=slug).first()
+    tasting.add_Photo(url_for('uploaded_file', filename=filename)) 
+    flash(u'Foto subida', 'success')
+    return redirect(url_for('get_tasting_profile', slug=slug))
+
+
 # USERS
 ################################################################################
 

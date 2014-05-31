@@ -65,6 +65,27 @@
         {% endif %}
       </ul>
     </div>
+    <div class="panel panel-default">
+      {% if tasting.photos %}
+        <div class="panel-heading">Fotos</div>
+        <div style="max-height:170px; text-align:center; overflow-y:scroll;">
+        {% for photo in tasting.photos %}
+            <img class="img-rounded image avatar" src="{{ photo }}" />
+        {% endfor %}
+        </div>
+      {% else %}
+        <div class="panel-heading">Fotos</div>
+        <div class="panel-body">Aún no hay ninguna foto</div>
+      {% endif %}
+      <div class="panel-footer">
+        <form role="form" method="POST" enctype="multipart/form-data" action="{{ url_for('post_tasting_photo', slug=tasting.slug) }}">
+          <input type="file" id="tasting-photo" name="tasting-photo" class="hidden">
+          <button type="button" id="choose-tasting-photo" class="btn btn-primary pull-right">Subir Foto</button>
+          <button type="submit" id="submit-tasting-photo" class="hidden"></button>
+          <div class="clearfix"></div>
+        </form>
+      </div>
+    </div>
   </div>
     <div class="col-md-9">
       {% include 'activities_panel.html' %}

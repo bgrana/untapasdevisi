@@ -109,7 +109,15 @@ $(function() {
       $("#toggle-icon").removeClass("glyphicon-minus");
       $("#toggle-icon").addClass("glyphicon-plus");
     }
-  })
+  });
+
+  $("#choose-tasting-photo").click(function() {
+    $("#tasting-photo").click();
+  });
+
+  $("#tasting-photo").change(function() {
+    $("#submit-tasting-photo").click();
+  });
 });
 
 function show_score(score) {

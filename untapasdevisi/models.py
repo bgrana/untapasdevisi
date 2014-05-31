@@ -307,6 +307,10 @@ class Tasting(Document):
     def search(q, n):
         return Tasting.objects(name__icontains=q).limit(5)
 
+    def add_Photo(self, photo):
+        self.photos.append(photo)
+        self.save()
+
     meta = {'allow_inheritance': True}
 
 
