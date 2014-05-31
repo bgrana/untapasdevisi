@@ -317,9 +317,11 @@ def post_tastings():
     file = request.files['image']
     if not file:
         tasting = Tasting.create_tasting(
-        name=form.name.data,
-        local_name=form.local_name.data,
-        recipe=form.recipe.data
+            name=form.name.data,
+            local_name=form.local_name.data,
+            description=form.description.data,
+            taste=form.taste.data,
+            origin=form.origin.data
         )
     else:
         filename = secure_filename(file.filename)
@@ -327,8 +329,10 @@ def post_tastings():
         tasting = Tasting.create_tasting(
             name=form.name.data,
             local_name=form.local_name.data,
-            recipe=form.recipe.data,
-            avatar=url_for('uploaded_file', filename=filename)
+            description=form.description.data,
+            avatar=url_for('uploaded_file', filename=filename),
+            taste=form.taste.data,
+            origin=form.origin.data
         )
     return redirect(url_for('get_tasting_profile', slug=tasting.slug))
 

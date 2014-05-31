@@ -5,16 +5,22 @@
   <div class="panel panel-default center">
     <div class="panel-heading">Registrar local</div>
     <div class="panel-body">  
-      <div class="form-group">
-        <input type="file" class="hidden" id="image" name="image" />
-        <img class="img-thumbnail image avatar-jumbo" id="chooser" name="chooser" src="" alt="Haz click en el recuedro para elegir una imagen de perfil" />
-      </div>
-      <div class="form-group {% if form.name.errors %}has-error has-feedback{% endif %}">
-        <input type="text" class="form-control" id="name" name="name" placeholder="Nombre del local" value="{{ form.name.data }}" />
-      </div>
-      <div class="form-group {% if form.location.errors %}has-error has-feedback{% endif %}">
-        <input type="text" class="form-control" id="location" name="location" placeholder="Dirección del local" value="{{ form.location.data }}" />
-      </div>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <input type="file" class="hidden" id="image" name="image" />
+              <img class="img-thumbnail image avatar-jumbo" id="chooser" name="chooser" src="" alt="Haz click en el recuedro para elegir una imagen de perfil" />
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="form-group {% if form.name.errors %}has-error has-feedback{% endif %}">
+              <input type="text" class="form-control" id="name" name="name" placeholder="Nombre del local" value="{{ form.name.data }}" />
+            </div>
+            <div class="form-group {% if form.location.errors %}has-error has-feedback{% endif %}">
+              <input type="text" class="form-control" id="location" name="location" placeholder="Dirección del local" value="{{ form.location.data }}" />
+            </div>
+          </div>
+        </div>
       <div class="form-group {% if form.description.errors %}has-error has-feedback{% endif %}">
         <textarea class="form-control" id="description" name="description" maxlength="240" placeholder="Breve descripción del local (opcional)" rows="7"></textarea>
       </div>

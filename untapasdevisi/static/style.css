@@ -97,23 +97,8 @@ a:hover {
 -----------------------------------------------------------------------------
 */
 
-.form-group {
-    margin-bottom: 0;
-}
-
 .form-group + .form-group {
     margin-top: 15px;
-}
-
-.form-control {
-    border: 1px solid #bdc7d8;
-    box-shadow: none;
-    border-radius: 0;
-}
-
-.form-control:focus {
-    border-color: #9d9c9a;
-    box-shadow: none;
 }
 
 .has-error .form-control:focus {
