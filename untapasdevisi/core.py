@@ -355,7 +355,9 @@ def post_vote(tasting_slug):
 @app.route('/degustaciones/<tasting_slug>/comentar', methods=['POST'])
 @login_required
 def post_tasting_comment(tasting_slug):
-    message = request.form['message']
+    message = request.form['message'].strip()
+    if not message:
+        message = request.form['message'].strip()
     tasting = Tasting.get_by_slug(tasting_slug)
     user = User.objects(username=current_user.username).first()
     comment = Comment.create_comment(tasting, user, message)
@@ -365,7 +367,9 @@ def post_tasting_comment(tasting_slug):
 @app.route('/locales/<local_slug>/comentar', methods=['POST'])
 @login_required
 def post_local_comment(local_slug):
-    message = request.form['message']
+    message = request.form['message'].strip()
+    if not message:
+        message = request.form['message'].strip()
     local = Local.get_by_slug(local_slug)
     user = User.objects(username=current_user.username).first()
     comment = Comment.create_comment(local, user, message)
@@ -375,7 +379,9 @@ def post_local_comment(local_slug):
 @app.route('/usuarios/<username>/comentar', methods=['POST'])
 @login_required
 def post_user_comment(username):
-    message = request.form['message']
+    message = request.form['message'].strip()
+    if not message:
+        return redirect(url_for('get_profile', username=username))
     target_user = User.objects(username=username).first()
     user = User.objects(username=current_user.username).first()
     comment = Comment.create_comment(target_user, user, message)
@@ -385,7 +391,9 @@ def post_user_comment(username):
 @app.route('/comentar', methods=['POST'])
 @login_required
 def post_index_comment():
-    message = request.form['message']
+    message = request.form['message'].strip()
+    if not message:
+        return redirect(url_for('get_index'))
     user = User.objects(username=current_user.username).first()
     comment = Comment.create_comment(user, user, message)
     return redirect(url_for('get_index'))
