@@ -24,7 +24,7 @@
       {% else %}
       <ul onmouseout="javascript:show_score({{ tasting.points / tasting.user_votes }})" class="star-rating">
       {% endif %}
-      
+
         {% if vote %}
         <li style="width: {{ 8 * vote.points }}px;" id="current-rating" class="current-rating">{{ vote.points }}</li>
         {% else %}
@@ -88,6 +88,7 @@
     </div>
   </div>
     <div class="col-md-9">
+      {% include 'comments_panel.html'%}
       {% include 'activities_panel.html' %}
     </div>
     </div>

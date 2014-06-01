@@ -4,7 +4,7 @@ import datetime
 from mongoengine import connect, Document, StringField, ListField
 from mongoengine import ReferenceField, DateTimeField, BooleanField, Q
 from mongoengine import GenericReferenceField, GenericEmbeddedDocumentField
-from mongoengine import EmbeddedDocument, IntField
+from mongoengine import EmbeddedDocument, IntField, FloatField
 from passlib.hash import bcrypt
 
 IMG_PATH = 'images'
@@ -270,15 +270,20 @@ class Tasting(Document):
     slug = StringField(required=True, unique=True)
     local_name = StringField(required=True)
     local_slug = StringField(required=True)
-    recipe = StringField()
+    description = StringField()
     avatar = StringField()
+    photos = ListField(StringField())
+    origin = StringField()
+    taste = StringField()
     points = IntField(default=0)
     user_votes = IntField(default=0)
+    mean_score = FloatField(default=0.0)
     created = DateTimeField(default=datetime.datetime.now)
 
     @staticmethod
-    def create_tasting(name, local_name, recipe="",
-        avatar='/'+IMG_PATH+'/no_tasting_avatar.png'):
+    def create_tasting(name, local_name, description="",
+        avatar='/'+IMG_PATH+'/no_tasting_avatar.png', taste="", origin="",
+        food_drink=""):
 
         name = name
         slug = Tasting.slugify(name)
@@ -289,8 +294,10 @@ class Tasting(Document):
             slug=slug,
             local_name=local_name,
             local_slug=local_slug,
-            recipe=recipe,
-            avatar=avatar
+            description=description,
+            avatar=avatar,
+            taste=taste,
+            origin=origin
         )
         tasting.save()
         return tasting
@@ -302,6 +309,14 @@ class Tasting(Document):
     @staticmethod
     def slugify(name):
         return name.strip().lower().replace(' ', '-')
+
+    @staticmethod
+    def search(q, n):
+        return Tasting.objects(name__icontains=q).limit(5)
+
+    def add_Photo(self, photo):
+        self.photos.append(photo)
+        self.save()
 
     meta = {'allow_inheritance': True}
 
@@ -318,6 +333,8 @@ class Vote(Document):
         vote.save()
         tasting.points += points
         tasting.user_votes += 1
+        tasting.mean_score = float(tasting.points) / float(tasting.user_votes)
+        print tasting.mean_score
         tasting.save()
         activity = VoteActivity.create(tasting, user, points)
 
@@ -328,8 +345,11 @@ class Vote(Document):
         self.save()
         tasting = self.tasting
         tasting.points = tasting.points - old_points + self.points
+        tasting.mean_score = float(tasting.points) / float(tasting.user_votes)
+        print tasting.mean_score
         tasting.save()
         activity = VoteActivity.create(tasting, self.user, points)
+
 
 class Comment(Document):
     message = StringField()
