@@ -4,7 +4,7 @@ import datetime
 from mongoengine import connect, Document, StringField, ListField
 from mongoengine import ReferenceField, DateTimeField, BooleanField, Q
 from mongoengine import GenericReferenceField, GenericEmbeddedDocumentField
-from mongoengine import EmbeddedDocument, IntField, FloatField
+from mongoengine import EmbeddedDocument, IntField
 from passlib.hash import bcrypt
 
 IMG_PATH = 'images'
@@ -153,11 +153,18 @@ class Activity(Document):
         return Activity.objects.filter(
             Q(creator=creator) | Q(target=target))
 
+    @staticmethod
+    def activity_stream_by_user(user):
+        friendships = Friendship.get_confirmed_from_user(user)
+        ids = [f.get_friend(user).id for f in friendships]
+        ids.append(user.id)
+        return Activity.objects(creator__in=ids).order_by('-created').limit(10)
+
     meta = {'allow_inheritance': True}
 
 
 class FriendshipActivity(Activity):
-    
+
     @staticmethod
     def create(creator, friend):
         activity = FriendshipActivity(creator=creator, target=friend)
@@ -194,7 +201,7 @@ class VoteActivity(Activity):
 
 
 class CommentActivity(Activity):
-   
+
     @staticmethod
     def create(target, creator):
         activity = CommentActivity(target=target, creator=creator)
@@ -213,7 +220,7 @@ class Local(Document):
     @staticmethod
     def create_local(name, location, description="",
         avatar='/'+IMG_PATH+'/no_local_avatar.png'):
-        
+
         name = name
         slug = Local.slugify(name)
         local = Local(
@@ -263,21 +270,16 @@ class Tasting(Document):
     slug = StringField(required=True, unique=True)
     local_name = StringField(required=True)
     local_slug = StringField(required=True)
-    description = StringField()
+    recipe = StringField()
     avatar = StringField()
-    photos = ListField(StringField())
-    origin = StringField()
-    taste = StringField()
     points = IntField(default=0)
     user_votes = IntField(default=0)
-    mean_score = FloatField(default=0.0)
     created = DateTimeField(default=datetime.datetime.now)
 
     @staticmethod
-    def create_tasting(name, local_name, description="",
-        avatar='/'+IMG_PATH+'/no_tasting_avatar.png', taste="", origin="",
-        food_drink=""):
-        
+    def create_tasting(name, local_name, recipe="",
+        avatar='/'+IMG_PATH+'/no_tasting_avatar.png'):
+
         name = name
         slug = Tasting.slugify(name)
         local_name = local_name
@@ -287,10 +289,8 @@ class Tasting(Document):
             slug=slug,
             local_name=local_name,
             local_slug=local_slug,
-            description=description,
-            avatar=avatar,
-            taste=taste,
-            origin=origin
+            recipe=recipe,
+            avatar=avatar
         )
         tasting.save()
         return tasting
@@ -302,14 +302,6 @@ class Tasting(Document):
     @staticmethod
     def slugify(name):
         return name.strip().lower().replace(' ', '-')
-
-    @staticmethod
-    def search(q, n):
-        return Tasting.objects(name__icontains=q).limit(5)
-
-    def add_Photo(self, photo):
-        self.photos.append(photo)
-        self.save()
 
     meta = {'allow_inheritance': True}
 
@@ -326,8 +318,6 @@ class Vote(Document):
         vote.save()
         tasting.points += points
         tasting.user_votes += 1
-        tasting.mean_score = float(tasting.points) / float(tasting.user_votes)
-        print tasting.mean_score
         tasting.save()
         activity = VoteActivity.create(tasting, user, points)
 
@@ -338,8 +328,6 @@ class Vote(Document):
         self.save()
         tasting = self.tasting
         tasting.points = tasting.points - old_points + self.points
-        tasting.mean_score = float(tasting.points) / float(tasting.user_votes)
-        print tasting.mean_score
         tasting.save()
         activity = VoteActivity.create(tasting, self.user, points)
 

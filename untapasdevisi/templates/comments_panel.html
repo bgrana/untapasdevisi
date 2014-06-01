@@ -1,0 +1,43 @@
+<div class="panel panel-default">
+    <div class="panel-heading">Comentarios
+        <button id="show-comment-btn" class="btn btn-secondary pull-right"><p style="display:inline-block;">Añadir comentario</p><i id="toggle-icon" class="glyphicon glyphicon-plus" style="margin-left:7px;"></i></button>
+    </div>
+    <div id="comments-form" class="list-group" style="display:none;">
+        {% if tasting %}
+            <form method="POST" action="{{ url_for('post_tasting_comment', tasting_slug=tasting.slug) }}">
+        {% elif local %}
+            <form method="POST" action="{{ url_for('post_local_comment', local_slug=local.slug) }}">
+        {% elif visited_user %}
+            <form method="POST" action="{{ url_for('post_user_comment', username=visited_user.username) }}">
+        {% else %}
+            <form method="POST" action="{{ url_for('post_index_comment') }}">
+        {% endif %}
+                <div>
+                    <img src="{{ user.avatar }}" class="img-rounded image avatar pull-left" />
+                    <textarea class="form-comment" placeholder="Introduce tu comentario aquí..." id="message" name="message" rows="4"></textarea>
+                </div>
+                <div class="panel-footer">
+                    <button type="submit" class="btn btn-primary pull-right">Enviar</button>
+                    <div class="clearfix"></div>
+                </div>
+            </form>
+    </div>
+    {% if comments %}
+    <ul class="list-group">
+        {% for comment in comments %}
+            <li class="list-group-item activity">
+                <a href="{{ url_for('get_profile', username=comment.user.username)}}">
+                    <img src=" {{ comment.user.avatar }}" class="img-circle image avatar-mini" />
+                    {{ comment.user.screen_name }}
+                </a>
+                <span class="ago">· Hace {{ comment.created | ago }}</span>
+                <div>{{comment.message}}</div>
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="panel-body">
+        No hay comentarios
+    </div>
+    {% endif %}
+</div>

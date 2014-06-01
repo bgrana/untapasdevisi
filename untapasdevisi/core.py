@@ -87,11 +87,10 @@ def ago_filter(date):
 def get_index():
     friends = Friendship.get_confirmed_from_user(current_user)
     user = User.objects(username=current_user.username).first()
-    comments = Comment.search(user=user, target=user).order_by('-created').limit(10)
-    activities = Activity.search(current_user.id, user).order_by('-created').limit(10)
+    activities = Activity.activity_stream_by_user(current_user)
     tastings = Tasting.objects().order_by('-mean_score').limit(10)
     return render_template('index.html', user=current_user,
-        friends=friends, activities=activities, comments=comments, tastings=tastings)
+        friends=friends, activities=activities, tastings=tastings)
 
 
 @app.route('/configuracion', methods=['GET'])
@@ -174,7 +173,7 @@ def get_profile(username):
     image = visited_user.avatar
     friendship = Friendship.get_from_users([current_user, visited_user])
 
-    comments = Comment.search(user=visited_user, target=visited_user).order_by('-created').limit(10)
+    comments = Comment.objects(target=visited_user).order_by('-created').limit(10)
     activities = Activity.search(creator=visited_user, target=visited_user).order_by('-created').limit(10)
     return render_template(
         'profile.html', user=current_user, visited_user=visited_user,
@@ -399,7 +398,7 @@ def post_tasting_photo(slug):
     filename = secure_filename(file.filename)
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     tasting = Tasting.objects(slug=slug).first()
-    tasting.add_Photo(url_for('uploaded_file', filename=filename)) 
+    tasting.add_Photo(url_for('uploaded_file', filename=filename))
     flash(u'Foto subida', 'success')
     return redirect(url_for('get_tasting_profile', slug=slug))
 
